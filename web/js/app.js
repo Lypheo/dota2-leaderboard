@@ -233,7 +233,7 @@ const App = {
     this.playerHistory = Stats.buildPlayerHistory(this.data.snapshots);
 
     // Migrate favorites that reference old name|country IDs (pre-identity-resolution)
-    this.migrateFavorites();
+    await this.migrateFavorites();
   },
 
   /**
@@ -241,13 +241,16 @@ const App = {
    * After identity resolution, a player who changed country keeps their
    * first-seen name|country as canonical ID. If a user favorited using
    * the newer name|country, that ID no longer exists — migrate it.
+   *
+   * Uses two sources for alias resolution:
+   * 1. Snapshot data (player.id != name|country)
+   * 2. Persistent registry aliases file (covers IDs that aged out of snapshots)
    */
-  migrateFavorites() {
+  async migrateFavorites() {
     const favoriteIds = Favorites.getAll();
     if (favoriteIds.length === 0) return;
 
-    // Build alias map: for each player, record all name|country combos
-    // that map to their canonical ID (including the current combo if different)
+    // Build alias map from snapshot data
     const aliasMap = {}; // name|country -> canonical ID
 
     for (const snapshot of this.data.snapshots) {
@@ -257,6 +260,25 @@ const App = {
           aliasMap[nameCountry] = player.id;
         }
       }
+    }
+
+    // Also load persistent registry aliases (covers IDs outside snapshot window)
+    try {
+      const registryResponse = await fetch(
+        `data/registry-${this.currentRegion}.json`,
+      );
+      if (registryResponse.ok) {
+        const registry = await registryResponse.json();
+        if (registry.aliases) {
+          for (const [combo, stableId] of Object.entries(registry.aliases)) {
+            if (combo !== stableId && !aliasMap[combo]) {
+              aliasMap[combo] = stableId;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // Registry file may not exist yet, that's fine
     }
 
     // Migrate orphaned favorites

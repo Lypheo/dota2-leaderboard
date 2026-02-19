@@ -27,6 +27,7 @@ const CONFIG = {
     { id: "china", file: "leaderboard/china.json" },
   ],
   OUTPUT_DIR: "web/data",
+  REGISTRY_DIR: "web/data",
 };
 
 /**
@@ -123,28 +124,91 @@ function getLeaderboardAtCommit(commitHash, leaderboardFile) {
 }
 
 /**
- * Resolve player identities across snapshots.
+ * Load the persistent player registry for a region.
+ * The registry maps name|country combos to stable canonical IDs.
+ * It persists across extraction runs so IDs survive the 140-day window rotation.
+ *
+ * @param {string} regionId - Region identifier
+ * @returns {Object} { canonicalIds: { combo -> stableId }, aliases: { combo -> stableId } }
+ */
+function loadRegistry(regionId) {
+  const registryPath = path.join(
+    CONFIG.REGISTRY_DIR,
+    `registry-${regionId}.json`,
+  );
+
+  if (fs.existsSync(registryPath)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(registryPath, "utf-8"));
+      console.log(
+        `  📂 Loaded registry with ${Object.keys(data.canonicalIds || {}).length} active and ${Object.keys(data.aliases || {}).length} alias entries`,
+      );
+      return {
+        canonicalIds: data.canonicalIds || {},
+        aliases: data.aliases || {},
+      };
+    } catch (error) {
+      console.warn(
+        `  ⚠️ Failed to load registry, starting fresh: ${error.message}`,
+      );
+    }
+  }
+
+  return { canonicalIds: {}, aliases: {} };
+}
+
+/**
+ * Save the persistent player registry for a region.
+ *
+ * @param {string} regionId - Region identifier
+ * @param {Object} registry - { canonicalIds, aliases }
+ */
+function saveRegistry(regionId, registry) {
+  const registryPath = path.join(
+    CONFIG.REGISTRY_DIR,
+    `registry-${regionId}.json`,
+  );
+  fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2));
+  const fileSizeKB = (fs.statSync(registryPath).size / 1024).toFixed(1);
+  console.log(
+    `  💾 Saved registry (${Object.keys(registry.canonicalIds).length} active, ${Object.keys(registry.aliases).length} aliases, ${fileSizeKB} KB)`,
+  );
+}
+
+/**
+ * Resolve player identities across snapshots using a persistent registry.
  *
  * Problem: The API has no player IDs. We use name|country as key, but when a
  * player changes country, they appear as a "new" player and their history splits.
  *
- * Solution: Process snapshots chronologically and detect country changes.
- * When a name|country combo appears that we haven't seen before, check if
- * exactly ONE previously-known player with the same name "disappeared" from
- * the current snapshot. If so, it's a country change — keep the same stable ID.
+ * Solution: Maintain a persistent registry that maps name|country combos to
+ * stable canonical IDs. The registry survives across extraction runs, so even
+ * when old snapshots fall off the 140-day window, IDs remain stable.
+ *
+ * On each run:
+ * 1. Load existing registry from disk
+ * 2. Process snapshots chronologically, detecting country changes
+ * 3. When a name|country combo appears that we haven't seen, check if exactly
+ *    ONE registered player with that name "disappeared" → country change
+ * 4. Save updated registry to disk
+ *
+ * The registry has two maps:
+ * - canonicalIds: current active name|country → stable ID
+ * - aliases: all historical name|country → stable ID (for favorite migration)
  *
  * Edge cases handled:
  * - Two players with the same name (different countries): kept separate
  * - Ambiguous merges (2+ same-name players disappeared): treated as new (safe)
  * - Team changes: don't affect identity (team is not part of the key)
+ * - Window rotation: old IDs preserved in registry file
  *
  * @param {Array} snapshots - Snapshots in chronological order (oldest first)
- * @returns {number} Number of identity merges performed
+ * @param {string} regionId - Region identifier for loading/saving registry
+ * @returns {number} Number of identity merges performed in this run
  */
-function resolvePlayerIdentities(snapshots) {
-  // Maps current name|country combo to its canonical (stable) ID.
-  // The canonical ID is the first-ever-seen name|country for that player.
-  const canonicalIds = {}; // name|country -> stable ID
+function resolvePlayerIdentities(snapshots, regionId) {
+  const registry = loadRegistry(regionId);
+  const { canonicalIds, aliases } = registry;
   let mergeCount = 0;
 
   for (const snapshot of snapshots) {
@@ -153,12 +217,17 @@ function resolvePlayerIdentities(snapshots) {
       snapshot.players.map((p) => `${p.name}|${p.country || ""}`),
     );
 
-    // First pass: assign IDs to players with known name|country combos
+    // First pass: assign IDs to players with known combos (active or alias)
     const unresolved = [];
     for (const player of snapshot.players) {
       const combo = `${player.name}|${player.country || ""}`;
       if (canonicalIds[combo]) {
         player.id = canonicalIds[combo];
+      } else if (aliases[combo]) {
+        // Known alias (e.g., player returned to a previous country)
+        player.id = aliases[combo];
+        // Re-activate this combo in the active map
+        canonicalIds[combo] = aliases[combo];
       } else {
         unresolved.push(player);
       }
@@ -180,9 +249,12 @@ function resolvePlayerIdentities(snapshots) {
         // Exactly one player with this name disappeared → country change
         const [oldCombo, stableId] = disappeared[0];
         player.id = stableId;
-        // Update registry: old combo no longer active, new combo points to same ID
+        // Update active map: old combo no longer active, new combo points to same ID
         delete canonicalIds[oldCombo];
         canonicalIds[combo] = stableId;
+        // Record both old and new as aliases for favorite migration
+        aliases[oldCombo] = stableId;
+        aliases[combo] = stableId;
         mergeCount++;
         console.log(
           `  🔗 Merged identity: ${oldCombo} → ${combo} (ID: ${stableId})`,
@@ -190,10 +262,14 @@ function resolvePlayerIdentities(snapshots) {
       } else {
         // New player or ambiguous (multiple same-name players disappeared)
         canonicalIds[combo] = combo;
+        aliases[combo] = combo;
         player.id = combo;
       }
     }
   }
+
+  // Save updated registry
+  saveRegistry(regionId, { canonicalIds, aliases });
 
   return mergeCount;
 }
@@ -297,7 +373,7 @@ async function extractRegionHistory(region) {
 
   // Resolve player identities across snapshots (handles country changes)
   console.log("🔗 Resolving player identities...");
-  const mergeCount = resolvePlayerIdentities(snapshots);
+  const mergeCount = resolvePlayerIdentities(snapshots, region.id);
   console.log(`  Merged ${mergeCount} identity change(s)`);
 
   // Build output
