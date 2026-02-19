@@ -231,6 +231,42 @@ const App = {
 
     // Build player history for stats
     this.playerHistory = Stats.buildPlayerHistory(this.data.snapshots);
+
+    // Migrate favorites that reference old name|country IDs (pre-identity-resolution)
+    this.migrateFavorites();
+  },
+
+  /**
+   * Migrate favorites that reference old name|country IDs.
+   * After identity resolution, a player who changed country keeps their
+   * first-seen name|country as canonical ID. If a user favorited using
+   * the newer name|country, that ID no longer exists — migrate it.
+   */
+  migrateFavorites() {
+    const favoriteIds = Favorites.getAll();
+    if (favoriteIds.length === 0) return;
+
+    // Build alias map: for each player, record all name|country combos
+    // that map to their canonical ID (including the current combo if different)
+    const aliasMap = {}; // name|country -> canonical ID
+
+    for (const snapshot of this.data.snapshots) {
+      for (const player of snapshot.players) {
+        const nameCountry = `${player.name}|${player.country || ""}`;
+        if (player.id && player.id !== nameCountry) {
+          aliasMap[nameCountry] = player.id;
+        }
+      }
+    }
+
+    // Migrate orphaned favorites
+    for (const favId of favoriteIds) {
+      if (!this.playerHistory[favId] && aliasMap[favId]) {
+        console.log(`Migrating favorite: ${favId} → ${aliasMap[favId]}`);
+        Favorites.remove(favId);
+        Favorites.add(aliasMap[favId]);
+      }
+    }
   },
 
   /**

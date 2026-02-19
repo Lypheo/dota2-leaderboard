@@ -55,7 +55,7 @@ function getLeaderboardCommits(leaderboardFile) {
 
   // Get commits with hash, date, and message
   const log = git(
-    `log --since="${since}" --format="%H|%aI|%s" -- "${leaderboardFile}"`
+    `log --since="${since}" --format="%H|%aI|%s" -- "${leaderboardFile}"`,
   );
 
   if (!log) return [];
@@ -123,6 +123,82 @@ function getLeaderboardAtCommit(commitHash, leaderboardFile) {
 }
 
 /**
+ * Resolve player identities across snapshots.
+ *
+ * Problem: The API has no player IDs. We use name|country as key, but when a
+ * player changes country, they appear as a "new" player and their history splits.
+ *
+ * Solution: Process snapshots chronologically and detect country changes.
+ * When a name|country combo appears that we haven't seen before, check if
+ * exactly ONE previously-known player with the same name "disappeared" from
+ * the current snapshot. If so, it's a country change — keep the same stable ID.
+ *
+ * Edge cases handled:
+ * - Two players with the same name (different countries): kept separate
+ * - Ambiguous merges (2+ same-name players disappeared): treated as new (safe)
+ * - Team changes: don't affect identity (team is not part of the key)
+ *
+ * @param {Array} snapshots - Snapshots in chronological order (oldest first)
+ * @returns {number} Number of identity merges performed
+ */
+function resolvePlayerIdentities(snapshots) {
+  // Maps current name|country combo to its canonical (stable) ID.
+  // The canonical ID is the first-ever-seen name|country for that player.
+  const canonicalIds = {}; // name|country -> stable ID
+  let mergeCount = 0;
+
+  for (const snapshot of snapshots) {
+    // Collect all name|country combos present in this snapshot
+    const currentCombos = new Set(
+      snapshot.players.map((p) => `${p.name}|${p.country || ""}`),
+    );
+
+    // First pass: assign IDs to players with known name|country combos
+    const unresolved = [];
+    for (const player of snapshot.players) {
+      const combo = `${player.name}|${player.country || ""}`;
+      if (canonicalIds[combo]) {
+        player.id = canonicalIds[combo];
+      } else {
+        unresolved.push(player);
+      }
+    }
+
+    // Second pass: try to resolve unknown combos by detecting country changes
+    for (const player of unresolved) {
+      const combo = `${player.name}|${player.country || ""}`;
+      const name = player.name;
+
+      // Find registered players with the same name whose old name|country
+      // combo is NOT in the current snapshot (they "disappeared")
+      const disappeared = Object.entries(canonicalIds).filter(([nc]) => {
+        const ncName = nc.substring(0, nc.lastIndexOf("|"));
+        return ncName === name && !currentCombos.has(nc);
+      });
+
+      if (disappeared.length === 1) {
+        // Exactly one player with this name disappeared → country change
+        const [oldCombo, stableId] = disappeared[0];
+        player.id = stableId;
+        // Update registry: old combo no longer active, new combo points to same ID
+        delete canonicalIds[oldCombo];
+        canonicalIds[combo] = stableId;
+        mergeCount++;
+        console.log(
+          `  🔗 Merged identity: ${oldCombo} → ${combo} (ID: ${stableId})`,
+        );
+      } else {
+        // New player or ambiguous (multiple same-name players disappeared)
+        canonicalIds[combo] = combo;
+        player.id = combo;
+      }
+    }
+  }
+
+  return mergeCount;
+}
+
+/**
  * Sample commits if there are too many
  */
 function sampleCommits(commits) {
@@ -131,7 +207,7 @@ function sampleCommits(commits) {
   }
 
   console.log(
-    `Sampling ${CONFIG.MAX_SNAPSHOTS} commits from ${commits.length} total`
+    `Sampling ${CONFIG.MAX_SNAPSHOTS} commits from ${commits.length} total`,
   );
 
   const sampled = [];
@@ -176,7 +252,7 @@ async function extractRegionHistory(region) {
 
   let commits = getLeaderboardCommits(region.file);
   console.log(
-    `Found ${commits.length} commits in the last ${CONFIG.MAX_DAYS} days`
+    `Found ${commits.length} commits in the last ${CONFIG.MAX_DAYS} days`,
   );
 
   if (commits.length === 0) {
@@ -211,13 +287,18 @@ async function extractRegionHistory(region) {
   }
 
   console.log(
-    `✅ Extracted ${snapshots.length} valid snapshots for ${region.id}`
+    `✅ Extracted ${snapshots.length} valid snapshots for ${region.id}`,
   );
 
   if (snapshots.length === 0) {
     console.warn(`⚠️ No valid snapshots for ${region.id}, skipping...`);
     return;
   }
+
+  // Resolve player identities across snapshots (handles country changes)
+  console.log("🔗 Resolving player identities...");
+  const mergeCount = resolvePlayerIdentities(snapshots);
+  console.log(`  Merged ${mergeCount} identity change(s)`);
 
   // Build output
   const output = {
