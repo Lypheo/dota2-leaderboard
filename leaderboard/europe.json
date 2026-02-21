@@ -33,16 +33,16 @@
   },
   {
     "rank": 6,
-    "name": "Pure",
-    "team_id": 8291895,
-    "team_tag": "Tundra"
-  },
-  {
-    "rank": 7,
     "name": "Kiritych~",
     "team_id": 8255888,
     "team_tag": "BetBoom",
     "country": "ru"
+  },
+  {
+    "rank": 7,
+    "name": "Pure",
+    "team_id": 8291895,
+    "team_tag": "Tundra"
   },
   {
     "rank": 8,
@@ -170,13 +170,13 @@
   },
   {
     "rank": 28,
-    "name": "Tobi",
-    "country": "at"
+    "name": "ChodΣX",
+    "country": "io"
   },
   {
     "rank": 29,
-    "name": "ChodΣX",
-    "country": "io"
+    "name": "Tobi",
+    "country": "at"
   },
   {
     "rank": 30,
@@ -204,14 +204,14 @@
   },
   {
     "rank": 34,
-    "name": "Fayde",
-    "team_id": 9964962,
-    "team_tag": "GL"
+    "name": "daze",
+    "country": "kz"
   },
   {
     "rank": 35,
-    "name": "daze",
-    "country": "kz"
+    "name": "Fayde",
+    "team_id": 9964962,
+    "team_tag": "GL"
   },
   {
     "rank": 36,
@@ -254,11 +254,11 @@
   },
   {
     "rank": 43,
-    "name": "emptiness死"
+    "name": "INFERNAL"
   },
   {
     "rank": 44,
-    "name": "INFERNAL"
+    "name": "emptiness死"
   },
   {
     "rank": 45,
@@ -301,14 +301,14 @@
   },
   {
     "rank": 52,
-    "name": "Aidar"
-  },
-  {
-    "rank": 53,
     "name": "Till The End",
     "team_id": 55,
     "team_tag": "PR",
     "country": "af"
+  },
+  {
+    "rank": 53,
+    "name": "Aidar"
   },
   {
     "rank": 54,
@@ -358,17 +358,17 @@
   },
   {
     "rank": 61,
-    "name": "mellojul",
-    "team_id": 9928636,
-    "team_tag": "LYNX",
-    "country": "ax"
-  },
-  {
-    "rank": 62,
     "name": "htiviy_vladik",
     "team_id": 9928636,
     "team_tag": "LYNX",
     "country": "ua"
+  },
+  {
+    "rank": 62,
+    "name": "mellojul",
+    "team_id": 9928636,
+    "team_tag": "LYNX",
+    "country": "ax"
   },
   {
     "rank": 63,
@@ -421,45 +421,45 @@
   },
   {
     "rank": 72,
-    "name": "shigetsu",
-    "country": "ua"
-  },
-  {
-    "rank": 73,
     "name": "darkniA",
     "team_id": 1838315,
     "team_tag": "Secret",
     "country": "by"
   },
   {
-    "rank": 74,
+    "rank": 73,
     "name": "Corrupted"
   },
   {
-    "rank": 75,
+    "rank": 74,
     "name": "mrls",
     "country": "fi"
   },
   {
+    "rank": 75,
+    "name": "shigetsu",
+    "country": "ua"
+  },
+  {
     "rank": 76,
-    "name": "bottega",
-    "country": "ru"
-  },
-  {
-    "rank": 77,
-    "name": "Riddys",
-    "team_id": 36,
-    "team_tag": "NAVI"
-  },
-  {
-    "rank": 78,
     "name": "Larl",
     "team_id": 7119388,
     "team_tag": "TSpirit",
     "country": "af"
   },
   {
+    "rank": 77,
+    "name": "bottega",
+    "country": "ru"
+  },
+  {
     "rank": 78,
+    "name": "Riddys",
+    "team_id": 36,
+    "team_tag": "NAVI"
+  },
+  {
+    "rank": 79,
     "name": "No!ob™",
     "team_id": 7554697,
     "team_tag": "NGX",
@@ -474,13 +474,15 @@
   },
   {
     "rank": 81,
-    "name": "fortniteMan",
-    "country": "ua"
+    "name": "NLineは",
+    "team_id": 9724050,
+    "team_tag": "",
+    "country": "bh"
   },
   {
     "rank": 82,
-    "name": "yamich",
-    "country": "ru"
+    "name": "fortniteMan",
+    "country": "ua"
   },
   {
     "rank": 83,
@@ -502,53 +504,51 @@
   },
   {
     "rank": 86,
-    "name": "NLineは",
-    "team_id": 9724050,
-    "team_tag": "",
-    "country": "bh"
-  },
-  {
-    "rank": 87,
     "name": "Ekki",
     "country": "pl"
   },
   {
-    "rank": 88,
+    "rank": 87,
     "name": "asdekor_r",
     "team_id": 9498970,
     "team_tag": "AVULUS",
     "country": "ru"
   },
   {
+    "rank": 88,
+    "name": "yamich",
+    "country": "ru"
+  },
+  {
     "rank": 89,
-    "name": "Yuragi",
-    "country": "ua"
-  },
-  {
-    "rank": 90,
-    "name": "Rein",
-    "team_id": 9255039,
-    "team_tag": "1w"
-  },
-  {
-    "rank": 91,
     "name": "Bengan"
   },
   {
-    "rank": 92,
+    "rank": 90,
     "name": "Nikko",
     "team_id": 2586976,
     "team_tag": "OG",
     "country": "ph"
   },
   {
-    "rank": 93,
+    "rank": 91,
     "name": "LenS"
   },
   {
-    "rank": 94,
+    "rank": 92,
+    "name": "Yuragi",
+    "country": "ua"
+  },
+  {
+    "rank": 93,
     "name": "Cloud",
     "country": "ru"
+  },
+  {
+    "rank": 94,
+    "name": "Rein",
+    "team_id": 9255039,
+    "team_tag": "1w"
   },
   {
     "rank": 95,
@@ -557,39 +557,39 @@
   },
   {
     "rank": 96,
-    "name": "flyfly",
-    "country": "cn"
-  },
-  {
-    "rank": 97,
     "name": "dualrazee",
     "team_id": 9498970,
     "team_tag": "AVULUS",
     "country": "ua"
   },
   {
-    "rank": 98,
+    "rank": 97,
     "name": "Mo13ei",
     "country": "de"
   },
   {
-    "rank": 99,
+    "rank": 98,
     "name": "Fly",
     "team_id": 9895392,
     "team_tag": "VP",
     "country": "as"
   },
   {
-    "rank": 100,
+    "rank": 99,
     "name": "MieRo",
     "team_id": 8255888,
     "team_tag": "BetBoom"
   },
   {
-    "rank": 101,
+    "rank": 100,
     "name": "Ethereal",
     "team_id": 9895247,
     "team_tag": "RE"
+  },
+  {
+    "rank": 101,
+    "name": "flyfly",
+    "country": "cn"
   },
   {
     "rank": 102,
@@ -686,16 +686,21 @@
     "country": "ee"
   },
   {
-    "rank": 119,
+    "rank": 118,
+    "name": "Copy",
+    "country": "de"
+  },
+  {
+    "rank": 120,
     "name": "Nicky`Cool",
     "team_id": 55,
     "team_tag": "PR",
     "country": "ve"
   },
   {
-    "rank": 120,
-    "name": "rincyq",
-    "country": "ua"
+    "rank": 121,
+    "name": "neMamyka",
+    "country": "ru"
   },
   {
     "rank": 121,
@@ -705,46 +710,41 @@
     "country": "af"
   },
   {
-    "rank": 122,
-    "name": "Copy",
-    "country": "de"
-  },
-  {
     "rank": 123,
-    "name": "neMamyka",
-    "country": "ru"
-  },
-  {
-    "rank": 124,
     "name": "TORONTOTOKYO",
     "country": "ru"
   },
   {
-    "rank": 125,
+    "rank": 124,
     "name": "Supream^",
     "team_id": 10019843,
     "team_tag": "ICxI"
   },
   {
-    "rank": 126,
+    "rank": 125,
     "name": "Nyx",
     "country": "az"
   },
   {
-    "rank": 127,
-    "name": "niche",
-    "country": "ua"
-  },
-  {
-    "rank": 128,
+    "rank": 126,
     "name": "Kai",
     "team_id": 1303618,
     "team_tag": "RH",
     "country": "ua"
   },
   {
-    "rank": 129,
+    "rank": 126,
+    "name": "rincyq",
+    "country": "ua"
+  },
+  {
+    "rank": 128,
     "name": "4IVAN"
+  },
+  {
+    "rank": 129,
+    "name": "niche",
+    "country": "ua"
   },
   {
     "rank": 130,
@@ -760,29 +760,29 @@
   },
   {
     "rank": 132,
+    "name": "@@",
+    "country": "ax"
+  },
+  {
+    "rank": 133,
     "name": "laise",
     "team_id": 10019843,
     "team_tag": "ICxI"
   },
   {
-    "rank": 133,
+    "rank": 134,
     "name": "KaChal"
   },
   {
-    "rank": 134,
-    "name": "@@",
-    "country": "ax"
+    "rank": 135,
+    "name": "Flokk1n"
   },
   {
-    "rank": 135,
+    "rank": 136,
     "name": "Rain"
   },
   {
     "rank": 136,
-    "name": "Flokk1n"
-  },
-  {
-    "rank": 137,
     "name": "звёзд怪物",
     "country": "bv"
   },
@@ -804,12 +804,12 @@
   },
   {
     "rank": 141,
-    "name": "cutie"
+    "name": "waveformn",
+    "country": "ru"
   },
   {
     "rank": 142,
-    "name": "waveformn",
-    "country": "ru"
+    "name": "cutie"
   },
   {
     "rank": 143,
@@ -838,45 +838,45 @@
   },
   {
     "rank": 148,
-    "name": "MidOne",
-    "country": "my"
-  },
-  {
-    "rank": 149,
     "name": "MinD_ContRoL",
     "country": "bg"
   },
   {
+    "rank": 148,
+    "name": "MidOne",
+    "country": "my"
+  },
+  {
     "rank": 150,
-    "name": "Veldt"
+    "name": "4nalog丶01",
+    "country": "it"
   },
   {
     "rank": 151,
-    "name": "Norma"
+    "name": "Veldt"
   },
   {
     "rank": 152,
+    "name": "Norma"
+  },
+  {
+    "rank": 153,
     "name": "Malin",
     "country": "by"
   },
   {
-    "rank": 153,
+    "rank": 154,
     "name": "SumaiL-",
     "team_id": 7554697,
     "team_tag": "NGX",
     "country": "pk"
   },
   {
-    "rank": 154,
+    "rank": 155,
     "name": "pma",
     "team_id": 36,
     "team_tag": "NAVI",
     "country": "ua"
-  },
-  {
-    "rank": 155,
-    "name": "4nalog丶01",
-    "country": "it"
   },
   {
     "rank": 156,
@@ -916,18 +916,18 @@
   },
   {
     "rank": 163,
-    "name": "Stormstormer"
+    "name": "Fernans",
+    "team_id": 10019843,
+    "team_tag": "ICxI",
+    "country": "ua"
   },
   {
     "rank": 164,
-    "name": "zarich"
+    "name": "Stormstormer"
   },
   {
     "rank": 165,
-    "name": "Mira",
-    "team_id": 9467224,
-    "team_tag": "Aurora",
-    "country": "ua"
+    "name": "zarich"
   },
   {
     "rank": 166,
@@ -943,15 +943,13 @@
   },
   {
     "rank": 168,
-    "name": "Fernans",
-    "team_id": 10019843,
-    "team_tag": "ICxI",
-    "country": "ua"
-  },
-  {
-    "rank": 168,
     "name": "KG_Zayac",
     "country": "af"
+  },
+  {
+    "rank": 169,
+    "name": "ponlo",
+    "country": "sg"
   },
   {
     "rank": 170,
@@ -959,22 +957,24 @@
   },
   {
     "rank": 171,
+    "name": "Mira",
+    "team_id": 9467224,
+    "team_tag": "Aurora",
+    "country": "ua"
+  },
+  {
+    "rank": 172,
     "name": "Krinzhik",
     "country": "pl"
   },
   {
-    "rank": 172,
-    "name": "Jeezy"
-  },
-  {
-    "rank": 172,
+    "rank": 173,
     "name": "Xakoda",
     "country": "ax"
   },
   {
-    "rank": 172,
-    "name": "ponlo",
-    "country": "sg"
+    "rank": 173,
+    "name": "Jeezy"
   },
   {
     "rank": 175,
@@ -983,8 +983,8 @@
   },
   {
     "rank": 176,
-    "name": "Crystallis",
-    "country": "nl"
+    "name": "ряф^^",
+    "country": "by"
   },
   {
     "rank": 177,
@@ -993,128 +993,128 @@
   },
   {
     "rank": 178,
+    "name": "Crystallis",
+    "country": "nl"
+  },
+  {
+    "rank": 179,
     "name": "b4x4zZz",
     "country": "kz"
   },
   {
-    "rank": 179,
-    "name": "Ame",
-    "team_id": 8261500,
-    "team_tag": "XG"
-  },
-  {
-    "rank": 179,
-    "name": "Speeed",
-    "team_id": 9964962,
-    "team_tag": "GL",
-    "country": "us"
-  },
-  {
-    "rank": 181,
-    "name": "ряф^^",
-    "country": "by"
-  },
-  {
-    "rank": 182,
+    "rank": 180,
     "name": "aliez",
     "country": "ru"
   },
   {
-    "rank": 183,
+    "rank": 181,
     "name": "whyalwaysme"
   },
   {
-    "rank": 183,
+    "rank": 181,
     "name": "gringe",
     "country": "mn"
   },
   {
-    "rank": 185,
+    "rank": 183,
     "name": "^^",
     "team_id": 9895392,
     "team_tag": "VP",
     "country": "af"
   },
   {
-    "rank": 186,
+    "rank": 184,
+    "name": "Ame",
+    "team_id": 8261500,
+    "team_tag": "XG"
+  },
+  {
+    "rank": 185,
     "name": "Difference",
     "country": "af"
   },
   {
+    "rank": 186,
+    "name": "Speeed",
+    "team_id": 9964962,
+    "team_tag": "GL",
+    "country": "us"
+  },
+  {
     "rank": 187,
-    "name": "PiPi"
+    "name": "marty supreme",
+    "country": "af"
   },
   {
     "rank": 188,
-    "name": "conjure.x",
-    "country": "kz"
-  },
-  {
-    "rank": 189,
-    "name": "999",
-    "country": "ca"
-  },
-  {
-    "rank": 190,
     "name": "Lqc."
   },
   {
-    "rank": 191,
+    "rank": 189,
     "name": "meLes",
     "country": "al"
   },
   {
-    "rank": 192,
-    "name": "kek"
+    "rank": 190,
+    "name": "PiPi"
   },
   {
-    "rank": 193,
+    "rank": 191,
+    "name": "conjure.x",
+    "country": "kz"
+  },
+  {
+    "rank": 192,
     "name": "kreker",
     "team_id": 9928636,
     "team_tag": "LYNX",
     "country": "ua"
   },
   {
-    "rank": 194,
+    "rank": 193,
     "name": "payk",
     "team_id": 9928403,
     "team_tag": "Cobra",
     "country": "pe"
   },
   {
-    "rank": 194,
+    "rank": 193,
     "name": "://"
   },
   {
-    "rank": 196,
-    "name": "G.T.I",
-    "team_id": 9956757,
-    "team_tag": "LFT",
-    "country": "tr"
+    "rank": 195,
+    "name": "kek"
   },
   {
-    "rank": 197,
+    "rank": 195,
     "name": "Whitemon",
     "team_id": 8291895,
     "team_tag": "Tundra",
     "country": "as"
   },
   {
-    "rank": 198,
+    "rank": 197,
     "name": "Qojqva",
     "country": "de"
   },
   {
-    "rank": 199,
+    "rank": 198,
     "name": "Зюзя"
   },
   {
-    "rank": 200,
+    "rank": 199,
     "name": "BAKI"
   },
   {
-    "rank": 201,
+    "rank": 200,
     "name": "fangyuan"
+  },
+  {
+    "rank": 201,
+    "name": "G.T.I",
+    "team_id": 9956757,
+    "team_tag": "LFT",
+    "country": "tr"
   },
   {
     "rank": 202,
@@ -1128,30 +1128,30 @@
   },
   {
     "rank": 204,
+    "name": "Cr1t-",
+    "team_id": 9247354,
+    "team_tag": "FLCN",
+    "country": "dk"
+  },
+  {
+    "rank": 205,
     "name": "hunghung"
   },
   {
-    "rank": 204,
+    "rank": 205,
     "name": "KoJl9lCuK",
     "country": "dz"
   },
   {
-    "rank": 204,
+    "rank": 205,
     "name": "nesfeer",
     "team_id": 55,
     "team_tag": "PR",
     "country": "ax"
   },
   {
-    "rank": 207,
-    "name": "Delight"
-  },
-  {
     "rank": 208,
-    "name": "Cr1t-",
-    "team_id": 9247354,
-    "team_tag": "FLCN",
-    "country": "dk"
+    "name": "Delight"
   },
   {
     "rank": 209,
@@ -1164,52 +1164,52 @@
   },
   {
     "rank": 211,
-    "name": "rubikon155"
-  },
-  {
-    "rank": 212,
-    "name": "Amano",
-    "team_id": 9766820,
-    "team_tag": "ki",
-    "country": "ru"
-  },
-  {
-    "rank": 213,
     "name": "Pastil",
     "team_id": 9840188,
     "team_tag": "OXG",
     "country": "dz"
   },
   {
+    "rank": 212,
+    "name": "rubikon155"
+  },
+  {
+    "rank": 213,
+    "name": "Amano",
+    "team_id": 9766820,
+    "team_tag": "ki",
+    "country": "ru"
+  },
+  {
     "rank": 214,
-    "name": "W1sh-",
-    "country": "ge"
+    "name": "Mirele`",
+    "team_id": 2576071,
+    "team_tag": "YeS"
   },
   {
     "rank": 215,
-    "name": "lantana",
-    "country": "ua"
-  },
-  {
-    "rank": 216,
-    "name": "Depk1d",
-    "country": "us"
-  },
-  {
-    "rank": 217,
     "name": "天鸽",
     "country": "ca"
   },
   {
+    "rank": 216,
+    "name": "lantana",
+    "country": "ua"
+  },
+  {
     "rank": 217,
-    "name": "NARMAN",
-    "country": "mn"
+    "name": "W1sh-",
+    "country": "ge"
+  },
+  {
+    "rank": 218,
+    "name": "Depk1d",
+    "country": "us"
   },
   {
     "rank": 219,
-    "name": "Mirele`",
-    "team_id": 2576071,
-    "team_tag": "YeS"
+    "name": "NARMAN",
+    "country": "mn"
   },
   {
     "rank": 220,
@@ -1294,24 +1294,26 @@
   },
   {
     "rank": 236,
-    "name": "garbat1y"
-  },
-  {
-    "rank": 237,
     "name": "QBFY",
     "team_id": 9928636,
     "team_tag": "LYNX",
     "country": "ua"
   },
   {
-    "rank": 238,
+    "rank": 237,
     "name": "GodKid (J)",
     "country": "mk"
   },
   {
-    "rank": 239,
+    "rank": 238,
     "name": "kaneki",
     "country": "af"
+  },
+  {
+    "rank": 238,
+    "name": "byun",
+    "team_id": 9255225,
+    "team_tag": "ease"
   },
   {
     "rank": 240,
@@ -1322,44 +1324,42 @@
   },
   {
     "rank": 241,
+    "name": "w33",
+    "team_id": 10000118,
+    "team_tag": "NGX"
+  },
+  {
+    "rank": 242,
     "name": "elmo^^",
     "team_id": 9928623,
     "team_tag": "TNDR.ACDM",
     "country": "kz"
   },
   {
-    "rank": 242,
+    "rank": 243,
+    "name": "garbat1y"
+  },
+  {
+    "rank": 244,
     "name": "Emrys",
     "country": "ua"
   },
   {
-    "rank": 243,
+    "rank": 245,
     "name": "Egx",
     "country": "by"
   },
   {
-    "rank": 243,
-    "name": "byun",
-    "team_id": 9255225,
-    "team_tag": "ease"
-  },
-  {
-    "rank": 245,
+    "rank": 246,
     "name": "Fbz",
     "team_id": 9828897,
     "team_tag": "RKX",
     "country": "id"
   },
   {
-    "rank": 246,
+    "rank": 247,
     "name": "Covisnine",
     "country": "af"
-  },
-  {
-    "rank": 247,
-    "name": "w33",
-    "team_id": 10000118,
-    "team_tag": "NGX"
   },
   {
     "rank": 248,
@@ -1367,15 +1367,15 @@
   },
   {
     "rank": 249,
+    "name": "icq",
+    "country": "af"
+  },
+  {
+    "rank": 250,
     "name": "yaiX",
     "team_id": 9704788,
     "team_tag": "afk",
     "country": "ru"
-  },
-  {
-    "rank": 250,
-    "name": "icq",
-    "country": "af"
   },
   {
     "rank": 251,
@@ -1408,7 +1408,7 @@
   },
   {
     "rank": 257,
-    "name": "sybau",
+    "name": "Merlini",
     "country": "cn"
   },
   {
@@ -1447,8 +1447,7 @@
   },
   {
     "rank": 265,
-    "name": "int'j",
-    "country": "af"
+    "name": "sdf"
   },
   {
     "rank": 266,
@@ -1457,12 +1456,13 @@
   },
   {
     "rank": 267,
-    "name": "Legend",
-    "country": "ua"
+    "name": "int'j",
+    "country": "af"
   },
   {
     "rank": 268,
-    "name": "Waneda"
+    "name": "Legend",
+    "country": "ua"
   },
   {
     "rank": 269,
@@ -1489,60 +1489,60 @@
   },
   {
     "rank": 273,
+    "name": "mmr trader"
+  },
+  {
+    "rank": 274,
+    "name": "dota 2 enjoyer =)",
+    "country": "al"
+  },
+  {
+    "rank": 274,
     "name": "^^",
     "team_id": 4592013,
     "team_tag": "ааааа",
     "country": "gb"
   },
   {
-    "rank": 274,
+    "rank": 276,
     "name": "1",
     "country": "pe"
   },
   {
-    "rank": 275,
-    "name": "sdf"
-  },
-  {
-    "rank": 276,
+    "rank": 277,
     "name": "Bignum",
     "team_id": 9964962,
     "team_tag": "GL"
   },
   {
-    "rank": 277,
-    "name": "tw.tv/clacksontv",
-    "country": "ao"
+    "rank": 278,
+    "name": "Waneda"
   },
   {
-    "rank": 278,
+    "rank": 279,
     "name": "zoro",
     "team_id": 9125261,
     "team_tag": "",
     "country": "nz"
   },
   {
-    "rank": 279,
-    "name": "mmr trader"
-  },
-  {
     "rank": 280,
     "name": "12"
   },
   {
-    "rank": 280,
-    "name": "dota 2 enjoyer =)",
-    "country": "al"
-  },
-  {
-    "rank": 282,
+    "rank": 281,
     "name": "WoE",
     "country": "bo"
   },
   {
-    "rank": 283,
+    "rank": 282,
     "name": "flacko",
     "country": "ua"
+  },
+  {
+    "rank": 283,
+    "name": "adz",
+    "country": "gb"
   },
   {
     "rank": 284,
@@ -1557,62 +1557,62 @@
   },
   {
     "rank": 286,
+    "name": "tw.tv/clacksontv",
+    "country": "ao"
+  },
+  {
+    "rank": 286,
+    "name": "H8 ",
+    "country": "mk"
+  },
+  {
+    "rank": 288,
     "name": "Boxi",
     "team_id": 2163,
     "team_tag": "Liquid",
     "country": "se"
   },
   {
-    "rank": 287,
+    "rank": 289,
     "name": "Shushu",
     "country": "dz"
   },
   {
-    "rank": 288,
-    "name": "adz",
-    "country": "gb"
-  },
-  {
-    "rank": 288,
+    "rank": 290,
     "name": "L4rks",
     "country": "ee"
   },
   {
-    "rank": 290,
+    "rank": 291,
     "name": "slimeyao",
     "country": "ru"
   },
   {
-    "rank": 291,
+    "rank": 292,
     "name": "Время в никуда"
   },
   {
-    "rank": 291,
-    "name": "H8 ",
-    "country": "mk"
+    "rank": 293,
+    "name": "Gatciy"
   },
   {
-    "rank": 293,
+    "rank": 294,
     "name": "m1CKe",
     "team_id": 2163,
     "team_tag": "Liquid",
     "country": "se"
   },
   {
-    "rank": 293,
+    "rank": 294,
     "name": "ᶫᶦᵐᵉʳᵉᶰᶜᵉ̄"
   },
   {
-    "rank": 295,
+    "rank": 296,
     "name": "Topson",
     "country": "fi"
   },
   {
-    "rank": 296,
-    "name": "Gatciy"
-  },
-  {
-    "rank": 296,
+    "rank": 297,
     "name": "baysk`",
     "country": "mn"
   },
@@ -1752,41 +1752,41 @@
   },
   {
     "rank": 325,
-    "name": "Baymax"
-  },
-  {
-    "rank": 326,
     "name": "CHAWOT"
   },
   {
-    "rank": 327,
+    "rank": 326,
     "name": "Askles^",
     "team_id": 8769827,
     "team_tag": "Erisu",
     "country": "by"
   },
   {
-    "rank": 328,
+    "rank": 327,
     "name": "white",
     "country": "af"
   },
   {
-    "rank": 329,
+    "rank": 328,
     "name": "xannyy",
     "country": "ru"
   },
   {
-    "rank": 329,
+    "rank": 328,
     "name": "krol9ash",
     "team_id": 9886393,
     "team_tag": "NAVIj"
   },
   {
-    "rank": 331,
+    "rank": 330,
     "name": "pma"
   },
   {
-    "rank": 332,
+    "rank": 331,
+    "name": "Baymax"
+  },
+  {
+    "rank": 331,
     "name": "FLee"
   },
   {
@@ -1834,128 +1834,128 @@
   },
   {
     "rank": 342,
-    "name": "netan@yahoo.com",
-    "country": "il"
-  },
-  {
-    "rank": 343,
     "name": "Zodiac"
   },
   {
+    "rank": 343,
+    "name": "Zoom-ZigZag"
+  },
+  {
     "rank": 344,
+    "name": "qoval"
+  },
+  {
+    "rank": 345,
+    "name": "король готэма"
+  },
+  {
+    "rank": 346,
+    "name": "『          』",
+    "country": "af"
+  },
+  {
+    "rank": 347,
+    "name": "Astral",
+    "country": "by"
+  },
+  {
+    "rank": 348,
     "name": "Egor",
     "team_id": 9730797,
     "team_tag": "PSK"
   },
   {
-    "rank": 345,
-    "name": "Zoom-ZigZag"
-  },
-  {
-    "rank": 346,
-    "name": "qoval"
-  },
-  {
-    "rank": 347,
-    "name": "король готэма"
-  },
-  {
-    "rank": 348,
-    "name": "ϒāppie"
-  },
-  {
     "rank": 349,
-    "name": "『          』",
-    "country": "af"
+    "name": "Russians Are Low IQ",
+    "country": "il"
   },
   {
     "rank": 350,
-    "name": "Astral",
-    "country": "by"
-  },
-  {
-    "rank": 351,
-    "name": "Bat0N"
-  },
-  {
-    "rank": 351,
     "name": "eva",
     "country": "ec"
   },
   {
-    "rank": 353,
+    "rank": 350,
+    "name": "Bat0N"
+  },
+  {
+    "rank": 352,
     "name": "tv/matsarellow",
     "country": "ua"
   },
   {
-    "rank": 354,
-    "name": "Nagato LFT"
-  },
-  {
-    "rank": 355,
+    "rank": 353,
     "name": "имботащер_фемени"
   },
   {
-    "rank": 355,
+    "rank": 353,
     "name": "上头秀丶",
     "country": "ao"
   },
   {
+    "rank": 355,
+    "name": "vladibaby"
+  },
+  {
+    "rank": 356,
+    "name": "C-Minus"
+  },
+  {
     "rank": 357,
+    "name": "ariel",
+    "team_id": 10041126,
+    "team_tag": "LFT4"
+  },
+  {
+    "rank": 358,
+    "name": "ϒāppie"
+  },
+  {
+    "rank": 359,
+    "name": "DaaD-"
+  },
+  {
+    "rank": 360,
+    "name": "Kyoshi",
+    "country": "kz"
+  },
+  {
+    "rank": 360,
     "name": "SLATEM$",
     "team_id": 9799043,
     "team_tag": "VB",
     "country": "pe"
   },
   {
-    "rank": 358,
-    "name": "vladibaby"
-  },
-  {
-    "rank": 359,
-    "name": "C-Minus"
-  },
-  {
-    "rank": 360,
-    "name": "ariel",
-    "team_id": 10041126,
-    "team_tag": "LFT4"
-  },
-  {
-    "rank": 361,
-    "name": "DaaD-"
-  },
-  {
     "rank": 362,
-    "name": "Kyoshi",
-    "country": "kz"
-  },
-  {
-    "rank": 363,
     "name": "BliNcc",
     "team_id": 9948230,
     "team_tag": "twitch.tv",
     "country": "ro"
   },
   {
-    "rank": 364,
+    "rank": 363,
     "name": "Shishak",
     "country": "ru"
   },
   {
-    "rank": 365,
+    "rank": 364,
     "name": "Лукасня",
     "country": "by"
   },
   {
-    "rank": 366,
-    "name": "MooN",
-    "country": "my"
-  },
-  {
-    "rank": 367,
+    "rank": 365,
     "name": "resonance",
     "country": "ua"
+  },
+  {
+    "rank": 366,
+    "name": "tv/sketcher",
+    "country": "ua"
+  },
+  {
+    "rank": 366,
+    "name": "Nagato LFT"
   },
   {
     "rank": 368,
@@ -1968,13 +1968,12 @@
   },
   {
     "rank": 370,
-    "name": "egn",
-    "country": "by"
+    "name": "style~"
   },
   {
     "rank": 371,
-    "name": "tv/sketcher",
-    "country": "ua"
+    "name": "egn",
+    "country": "by"
   },
   {
     "rank": 372,
@@ -1982,40 +1981,41 @@
   },
   {
     "rank": 373,
+    "name": "MooN",
+    "country": "my"
+  },
+  {
+    "rank": 374,
     "name": "piss in the wind",
     "country": "dz"
   },
   {
-    "rank": 374,
+    "rank": 375,
     "name": "aavzuoM",
     "country": "pe"
   },
   {
-    "rank": 375,
+    "rank": 376,
     "name": "妓女"
   },
   {
-    "rank": 376,
+    "rank": 377,
     "name": "Cuziloveyou",
     "team_id": 8496276,
     "team_tag": "BTS",
     "country": "ru"
   },
   {
-    "rank": 377,
+    "rank": 378,
     "name": "Solitude"
   },
   {
-    "rank": 378,
+    "rank": 379,
     "name": "Wits",
     "country": "pe"
   },
   {
-    "rank": 379,
-    "name": "style~"
-  },
-  {
-    "rank": 379,
+    "rank": 380,
     "name": "---"
   },
   {
@@ -2060,22 +2060,22 @@
   },
   {
     "rank": 389,
-    "name": "Шизоид",
-    "country": "ru"
+    "name": "Mary_y",
+    "team_id": 10040974,
+    "team_tag": "twitch.tv",
+    "country": "kz"
   },
   {
-    "rank": 389,
+    "rank": 390,
     "name": "Grip",
     "team_id": 8376696,
     "team_tag": "Move",
     "country": "ru"
   },
   {
-    "rank": 391,
-    "name": "Mary_y",
-    "team_id": 10040974,
-    "team_tag": "twitch.tv",
-    "country": "kz"
+    "rank": 390,
+    "name": "Шизоид",
+    "country": "ru"
   },
   {
     "rank": 392,
@@ -2102,66 +2102,65 @@
     "name": "Baelor"
   },
   {
-    "rank": 396,
-    "name": "3st` V0pR0s1? n3t OtVet0V =D",
-    "country": "ru"
-  },
-  {
-    "rank": 398,
+    "rank": 397,
     "name": "!!!"
   },
   {
-    "rank": 399,
+    "rank": 398,
     "name": "chiki'",
     "country": "al"
   },
   {
-    "rank": 400,
+    "rank": 399,
     "name": "Aui_2000"
   },
   {
-    "rank": 401,
+    "rank": 400,
     "name": "sexgod",
     "country": "sa"
   },
   {
-    "rank": 402,
+    "rank": 401,
     "name": "=(",
     "country": "ne"
   },
   {
-    "rank": 403,
+    "rank": 402,
+    "name": "Senku"
+  },
+  {
+    "rank": 402,
+    "name": "Mute all Chat",
+    "country": "kz"
+  },
+  {
+    "rank": 404,
+    "name": "3st` V0pR0s1? n3t OtVet0V =D",
+    "country": "ru"
+  },
+  {
+    "rank": 405,
     "name": "Italiano Gangster",
     "country": "us"
   },
   {
-    "rank": 404,
+    "rank": 406,
     "name": "reibl"
   },
   {
-    "rank": 405,
+    "rank": 407,
     "name": "Kurisutina~",
     "country": "mn"
   },
   {
-    "rank": 406,
+    "rank": 408,
     "name": "Genek"
   },
   {
-    "rank": 407,
-    "name": "Senku"
-  },
-  {
-    "rank": 408,
+    "rank": 409,
     "name": "tv/maloydotos",
     "team_id": 9374340,
     "team_tag": "twitch"
-  },
-  {
-    "rank": 409,
-    "name": "Elmisho",
-    "team_id": 67,
-    "team_tag": "paiN"
   },
   {
     "rank": 410,
@@ -2169,36 +2168,37 @@
   },
   {
     "rank": 411,
-    "name": "Mute all Chat",
-    "country": "kz"
-  },
-  {
-    "rank": 411,
     "name": "hwoarang",
     "country": "af"
   },
   {
-    "rank": 413,
+    "rank": 412,
     "name": "KnowLedgE-",
     "team_id": 8589454,
     "team_tag": "FP",
     "country": "af"
   },
   {
-    "rank": 414,
+    "rank": 413,
     "name": "monke",
     "country": "ru"
   },
   {
-    "rank": 415,
+    "rank": 414,
     "name": "MugzZ",
     "team_id": 9381006,
     "team_tag": "LFT5",
     "country": "ru"
   },
   {
-    "rank": 416,
+    "rank": 415,
     "name": "layme"
+  },
+  {
+    "rank": 416,
+    "name": "Elmisho",
+    "team_id": 67,
+    "team_tag": "paiN"
   },
   {
     "rank": 417,
@@ -2252,45 +2252,50 @@
   },
   {
     "rank": 427,
-    "name": "神龙大侠 - 最强熊猫",
-    "country": "jp"
-  },
-  {
-    "rank": 428,
     "name": "beautiful world",
     "country": "ru"
   },
   {
-    "rank": 429,
+    "rank": 428,
     "name": "carti",
     "country": "af"
   },
   {
-    "rank": 430,
+    "rank": 429,
     "name": "LeBronDota"
   },
   {
-    "rank": 431,
+    "rank": 430,
     "name": "LocoCarnero",
     "country": "pe"
   },
   {
+    "rank": 431,
+    "name": "zаbаvnо",
+    "country": "ru"
+  },
+  {
     "rank": 432,
+    "name": "神龙大侠 - 最强熊猫",
+    "country": "jp"
+  },
+  {
+    "rank": 433,
     "name": "Q7",
     "team_id": 9886289,
     "team_tag": "",
     "country": "ag"
   },
   {
-    "rank": 433,
+    "rank": 434,
     "name": "klseki",
     "team_id": 8562032,
     "team_tag": "",
     "country": "ua"
   },
   {
-    "rank": 434,
-    "name": "Asfreed"
+    "rank": 435,
+    "name": "kiska"
   },
   {
     "rank": 435,
@@ -2298,10 +2303,6 @@
     "team_id": 9989175,
     "team_tag": "LFT",
     "country": "in"
-  },
-  {
-    "rank": 435,
-    "name": "kiska"
   },
   {
     "rank": 437,
@@ -2314,26 +2315,25 @@
   },
   {
     "rank": 439,
-    "name": "zаbаvnо",
-    "country": "ru"
-  },
-  {
-    "rank": 440,
     "name": "puckish229"
   },
   {
-    "rank": 441,
+    "rank": 440,
     "name": "oreomilkshake",
     "country": "ax"
   },
   {
-    "rank": 442,
+    "rank": 441,
     "name": "Ax.Mo"
   },
   {
-    "rank": 443,
+    "rank": 442,
     "name": "根性 Nanami",
     "country": "ua"
+  },
+  {
+    "rank": 443,
+    "name": "Max"
   },
   {
     "rank": 444,
@@ -2343,7 +2343,7 @@
   },
   {
     "rank": 445,
-    "name": "Max"
+    "name": "Asfreed"
   },
   {
     "rank": 446,
@@ -2351,55 +2351,55 @@
   },
   {
     "rank": 447,
-    "name": "Айхан"
-  },
-  {
-    "rank": 448,
-    "name": "VΔ4",
-    "country": "ru"
-  },
-  {
-    "rank": 448,
-    "name": "life.love.death."
-  },
-  {
-    "rank": 450,
-    "name": "克服"
-  },
-  {
-    "rank": 451,
-    "name": "jellyworms.ceo"
-  },
-  {
-    "rank": 452,
-    "name": "Attacker",
-    "country": "ae"
-  },
-  {
-    "rank": 453,
-    "name": "tv/iloveokaydoto",
-    "country": "af"
-  },
-  {
-    "rank": 454,
-    "name": "-Pos 1 enjoyer"
-  },
-  {
-    "rank": 455,
-    "name": "Purpurbl4"
-  },
-  {
-    "rank": 456,
-    "name": "паук"
-  },
-  {
-    "rank": 457,
     "name": "Prada",
     "country": "pe"
   },
   {
+    "rank": 448,
+    "name": "Айхан"
+  },
+  {
+    "rank": 449,
+    "name": "VΔ4",
+    "country": "ru"
+  },
+  {
+    "rank": 449,
+    "name": "life.love.death."
+  },
+  {
+    "rank": 451,
+    "name": "克服"
+  },
+  {
+    "rank": 452,
+    "name": "jellyworms.ceo"
+  },
+  {
+    "rank": 453,
+    "name": "Attacker",
+    "country": "ae"
+  },
+  {
+    "rank": 454,
+    "name": "tv/iloveokaydoto",
+    "country": "af"
+  },
+  {
+    "rank": 455,
+    "name": "-Pos 1 enjoyer"
+  },
+  {
+    "rank": 456,
+    "name": "Purpurbl4"
+  },
+  {
+    "rank": 457,
+    "name": "паук"
+  },
+  {
     "rank": 458,
-    "name": "Escape from reality"
+    "name": "mewtwo"
   },
   {
     "rank": 459,
@@ -2425,7 +2425,7 @@
   },
   {
     "rank": 463,
-    "name": "Patodonald"
+    "name": "Escape from reality"
   },
   {
     "rank": 464,
@@ -2439,16 +2439,16 @@
   },
   {
     "rank": 466,
-    "name": "mewtwo"
-  },
-  {
-    "rank": 467,
     "name": "highroller"
   },
   {
-    "rank": 468,
+    "rank": 467,
     "name": "91",
     "country": "sg"
+  },
+  {
+    "rank": 467,
+    "name": "Patodonald"
   },
   {
     "rank": 469,
@@ -2462,7 +2462,7 @@
   },
   {
     "rank": 471,
-    "name": "Alone again"
+    "name": "?"
   },
   {
     "rank": 472,
@@ -2513,30 +2513,29 @@
   },
   {
     "rank": 481,
-    "name": "tensai",
-    "country": "ru"
-  },
-  {
-    "rank": 482,
     "name": "Freaky",
     "team_id": 8428223,
     "team_tag": "",
     "country": "je"
   },
   {
-    "rank": 483,
+    "rank": 482,
     "name": "aNewMe",
     "team_id": 9292644,
     "team_tag": ""
   },
   {
-    "rank": 484,
+    "rank": 483,
     "name": "天堂"
   },
   {
-    "rank": 485,
+    "rank": 484,
     "name": "resistancexxx",
     "country": "ma"
+  },
+  {
+    "rank": 485,
+    "name": "blss"
   },
   {
     "rank": 486,
@@ -2560,44 +2559,45 @@
   },
   {
     "rank": 490,
+    "name": "tensai",
+    "country": "ru"
+  },
+  {
+    "rank": 491,
     "name": "ComicS"
   },
   {
-    "rank": 490,
-    "name": "Zesky~"
-  },
-  {
     "rank": 492,
-    "name": "Starlight-",
-    "country": "ag"
-  },
-  {
-    "rank": 493,
     "name": "Gom"
   },
   {
-    "rank": 494,
-    "name": "blss"
+    "rank": 493,
+    "name": "Zesky~"
   },
   {
-    "rank": 495,
+    "rank": 494,
     "name": "||||||||||||",
     "team_id": 9116319,
     "team_tag": ""
   },
   {
-    "rank": 496,
+    "rank": 495,
     "name": "qyqx"
   },
   {
-    "rank": 497,
-    "name": "gurlé"
+    "rank": 496,
+    "name": "Starlight-",
+    "country": "ag"
   },
   {
     "rank": 497,
     "name": "peccatores et sancti",
     "team_id": 9189055,
     "team_tag": ""
+  },
+  {
+    "rank": 497,
+    "name": "gurlé"
   },
   {
     "rank": 499,
