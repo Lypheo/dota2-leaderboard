@@ -80,7 +80,7 @@ const Stats = {
     count = 5,
     scope = 500,
     timeDays = 0,
-    snapshots = null
+    snapshots = null,
   ) {
     // If time filter is specified, rebuild history with filtered snapshots
     const history =
@@ -129,7 +129,7 @@ const Stats = {
     count = 5,
     scope = 500,
     timeDays = 0,
-    snapshots = null
+    snapshots = null,
   ) {
     // If time filter is specified, rebuild history with filtered snapshots
     const history =
@@ -287,6 +287,7 @@ const Stats = {
           playerTeams[playerId] = {
             name: player.name,
             country: player.country,
+            rank: player.rank,
             firstTeam: teamTag,
             firstTimestamp: snapshot.timestamp,
             lastTeam: teamTag,
@@ -295,6 +296,7 @@ const Stats = {
         } else {
           playerTeams[playerId].lastTeam = teamTag;
           playerTeams[playerId].lastTimestamp = snapshot.timestamp;
+          playerTeams[playerId].rank = player.rank;
           // Update name/country to latest
           playerTeams[playerId].name = player.name;
           if (player.country) playerTeams[playerId].country = player.country;
@@ -310,6 +312,7 @@ const Stats = {
           id: playerId,
           name: data.name,
           country: data.country,
+          rank: data.rank,
           fromTeam: data.firstTeam,
           toTeam: data.lastTeam,
           timestamp: data.lastTimestamp,
@@ -335,7 +338,7 @@ const Stats = {
 
     for (const snapshot of snapshots) {
       const player = snapshot.players.find(
-        (p) => this.getPlayerId(p) === playerId
+        (p) => this.getPlayerId(p) === playerId,
       );
       if (!player) continue;
 

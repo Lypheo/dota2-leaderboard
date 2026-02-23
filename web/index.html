@@ -215,6 +215,78 @@
         </nav>
       </header>
 
+      <!-- Global Filter Bar -->
+      <div class="filter-bar" id="filter-bar">
+        <div class="filter-group">
+          <label class="filter-label" for="time-scope">Period</label>
+          <select id="time-scope" class="filter-select">
+            <option value="1">24 Hours</option>
+            <option value="7">Last Week</option>
+            <option value="30">Last Month</option>
+            <option value="180">Last 6 Months</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label" for="rank-scope">Scope</label>
+          <select id="rank-scope" class="filter-select">
+            <option value="10">Top 10</option>
+            <option value="20">Top 20</option>
+            <option value="50">Top 50</option>
+            <option value="100">Top 100</option>
+            <option value="200">Top 200</option>
+            <option value="500">Top 500</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Country</label>
+          <div class="country-picker" id="country-picker">
+            <div class="country-picker-input-wrap">
+              <img
+                class="country-picker-flag hidden"
+                id="country-picker-flag"
+                src=""
+                alt=""
+                onerror="this.style.display = 'none'"
+              />
+              <input
+                type="text"
+                class="country-picker-input"
+                id="country-picker-input"
+                placeholder="All countries"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button
+                type="button"
+                class="country-picker-clear hidden"
+                id="country-picker-clear"
+                aria-label="Clear country filter"
+              >
+                &times;
+              </button>
+            </div>
+            <div
+              class="country-picker-dropdown hidden"
+              id="country-picker-dropdown"
+            >
+              <div
+                class="country-picker-options"
+                id="country-picker-options"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div class="filter-group">
+          <button
+            id="pros-only-toggle"
+            class="filter-toggle"
+            title="Show only players with teams"
+          >
+            Pros Only
+          </button>
+        </div>
+      </div>
+
       <!-- Loading State -->
       <div id="loading" class="loading" role="status" aria-live="polite">
         <div class="spinner" aria-hidden="true"></div>
@@ -237,44 +309,12 @@
           <article class="stats-card winners" id="winners-card">
             <h2>
               <span>📈 Biggest Winners</span>
-              <div class="scope-selects">
-                <select id="time-scope" class="scope-select">
-                  <option value="1">24 Hours</option>
-                  <option value="7">Last Week</option>
-                  <option value="30">Last Month</option>
-                  <option value="180">Last 6 Months</option>
-                </select>
-                <select id="winners-scope" class="scope-select">
-                  <option value="10">Top 10</option>
-                  <option value="20">Top 20</option>
-                  <option value="50">Top 50</option>
-                  <option value="100">Top 100</option>
-                  <option value="200">Top 200</option>
-                  <option value="500">Top 500</option>
-                </select>
-              </div>
             </h2>
             <ul id="winners-list" class="stats-list"></ul>
           </article>
           <article class="stats-card losers" id="losers-card">
             <h2>
               <span>📉 Biggest Losers</span>
-              <div class="scope-selects">
-                <select id="time-scope-losers" class="scope-select">
-                  <option value="1">24 Hours</option>
-                  <option value="7">Last Week</option>
-                  <option value="30">Last Month</option>
-                  <option value="180">Last 6 Months</option>
-                </select>
-                <select id="losers-scope" class="scope-select">
-                  <option value="10">Top 10</option>
-                  <option value="20">Top 20</option>
-                  <option value="50">Top 50</option>
-                  <option value="100">Top 100</option>
-                  <option value="200">Top 200</option>
-                  <option value="500">Top 500</option>
-                </select>
-              </div>
             </h2>
             <ul id="losers-list" class="stats-list"></ul>
           </article>
@@ -289,14 +329,6 @@
           >
             <h2>
               <span>⭐ Tracked Players</span>
-              <div class="scope-selects">
-                <select id="favorites-time-scope" class="scope-select">
-                  <option value="1">24 Hours</option>
-                  <option value="7" selected>Last Week</option>
-                  <option value="30">Last Month</option>
-                  <option value="180">Last 6 Months</option>
-                </select>
-              </div>
             </h2>
             <ul id="favorites-list" class="stats-list"></ul>
           </section>
@@ -336,18 +368,25 @@
             <span class="col-arrow"></span>
             <div class="header-buttons">
               <button
-                id="teams-only-toggle"
-                class="header-toggle"
-                title="Show only players with teams"
-              >
-                Pros Only
-              </button>
-              <button
                 id="expand-toggle"
                 class="expand-toggle"
                 title="Toggle compact mode"
               >
-                ↗
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <polyline points="9 21 3 21 3 15"></polyline>
+                  <line x1="21" y1="3" x2="14" y2="10"></line>
+                  <line x1="3" y1="21" x2="10" y2="14"></line>
+                </svg>
               </button>
             </div>
           </div>

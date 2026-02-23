@@ -8,6 +8,10 @@ const App = {
   playerHistory: null,
   currentRegion: "europe",
 
+  // Global filter state
+  prosOnly: false,
+  selectedCountry: "",
+
   // Region configuration
   regions: {
     americas: { name: "Americas", file: "americas" },
@@ -33,30 +37,30 @@ const App = {
       // Load data for current region
       await this.loadData();
 
-      // Initialize modules
+      // Load saved filter preferences BEFORE initModules so country filter populates correctly
+      const savedRankScope = localStorage.getItem("rankScope") || "20";
+      const savedTimeScope = localStorage.getItem("timeScope") || "7";
+      this.selectedCountry = localStorage.getItem("selectedCountry") || "";
+      this.prosOnly = localStorage.getItem("prosOnly") === "true";
+
+      // Initialize modules (populateCountryFilter needs selectedCountry set)
       this.initModules();
 
-      // Load saved scope preferences
-      const savedWinnersScope = localStorage.getItem("winnersScope") || "20";
-      const savedLosersScope = localStorage.getItem("losersScope") || "20";
-      const savedTimeScope = localStorage.getItem("timeScope") || "7";
-
       // Set dropdown values from saved preferences
-      document.getElementById("winners-scope").value = savedWinnersScope;
-      document.getElementById("losers-scope").value = savedLosersScope;
+      document.getElementById("rank-scope").value = savedRankScope;
       document.getElementById("time-scope").value = savedTimeScope;
-      document.getElementById("time-scope-losers").value = savedTimeScope;
-      document.getElementById("favorites-time-scope").value = savedTimeScope;
+
+      // Set pros-only toggle state
+      const prosToggle = document.getElementById("pros-only-toggle");
+      if (prosToggle && this.prosOnly) {
+        prosToggle.classList.add("active");
+      }
 
       // Render initial state with saved scopes
-      this.renderStats(
-        parseInt(savedWinnersScope),
-        parseInt(savedLosersScope),
-        parseInt(savedTimeScope),
-      );
+      this.renderStats(parseInt(savedRankScope), parseInt(savedTimeScope));
       this.renderInitialLeaderboard();
       this.renderFavorites();
-      this.setupScopeFilters();
+      this.setupGlobalFilters();
       this.setupExpandToggle();
       this.setupTeamChangesToggle();
       this.setupAboutModal();
@@ -65,8 +69,7 @@ const App = {
       Favorites.onChange(() => {
         this.renderFavorites();
         this.renderStats(
-          parseInt(document.getElementById("winners-scope").value),
-          parseInt(document.getElementById("losers-scope").value),
+          parseInt(document.getElementById("rank-scope").value),
           parseInt(document.getElementById("time-scope").value),
         );
         // Re-render leaderboard to update stars
@@ -175,16 +178,14 @@ const App = {
       // Re-initialize player modal with new history
       PlayerModal.init(this.playerHistory, this.data.snapshots);
 
+      // Re-populate country filter with new region's countries
+      this.populateCountryFilter();
+
       // Re-render everything
-      const winnersScope = parseInt(
-        document.getElementById("winners-scope").value,
-      );
-      const losersScope = parseInt(
-        document.getElementById("losers-scope").value,
-      );
+      const rankScope = parseInt(document.getElementById("rank-scope").value);
       const timeScope = parseInt(document.getElementById("time-scope").value);
 
-      this.renderStats(winnersScope, losersScope, timeScope);
+      this.renderStats(rankScope, timeScope);
       this.renderInitialLeaderboard();
       this.renderFavorites();
 
@@ -292,23 +293,97 @@ const App = {
   },
 
   /**
+   * Get human-readable country name from code
+   */
+  getCountryName(code) {
+    try {
+      const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+      return regionNames.of(code.toUpperCase()) || code.toUpperCase();
+    } catch {
+      return code.toUpperCase();
+    }
+  },
+
+  /**
+   * Populate country filter picker with countries from current data
+   */
+  populateCountryFilter() {
+    const optionsContainer = document.getElementById("country-picker-options");
+    const input = document.getElementById("country-picker-input");
+    const flag = document.getElementById("country-picker-flag");
+    const clearBtn = document.getElementById("country-picker-clear");
+    if (!optionsContainer || !input) return;
+
+    // Collect unique countries from all snapshots
+    const countries = new Set();
+    for (const snapshot of this.data.snapshots) {
+      for (const player of snapshot.players) {
+        if (player.country) {
+          countries.add(player.country.toLowerCase());
+        }
+      }
+    }
+
+    // Sort by country name
+    const sorted = [...countries].sort((a, b) => {
+      return this.getCountryName(a).localeCompare(this.getCountryName(b));
+    });
+
+    // Store for search filtering
+    this.countryList = sorted;
+
+    // Build options
+    this.renderCountryOptions(sorted);
+
+    // Set initial input value from saved selection
+    if (this.selectedCountry) {
+      input.value = this.getCountryName(this.selectedCountry);
+      if (flag) {
+        flag.src = Stats.getFlagUrl(this.selectedCountry);
+        flag.classList.remove("hidden");
+        flag.style.display = "";
+      }
+      if (clearBtn) clearBtn.classList.remove("hidden");
+    } else {
+      input.value = "";
+      if (flag) flag.classList.add("hidden");
+      if (clearBtn) clearBtn.classList.add("hidden");
+    }
+  },
+
+  /**
+   * Render country picker options (used by search filtering)
+   */
+  renderCountryOptions(codes) {
+    const optionsContainer = document.getElementById("country-picker-options");
+    if (!optionsContainer) return;
+    const selected = this.selectedCountry;
+
+    let html = "";
+
+    for (const code of codes) {
+      const flagUrl = Stats.getFlagUrl(code);
+      const name = this.escapeHtml(this.getCountryName(code));
+      const isSelected = code === selected;
+      html += `<div class="country-option${isSelected ? " selected" : ""}" data-value="${code}">
+        <img class="player-flag" src="${flagUrl}" onerror="this.style.display='none'">
+        <span>${name}</span>
+        <span class="country-code">${code.toUpperCase()}</span>
+      </div>`;
+    }
+
+    optionsContainer.innerHTML = html;
+  },
+
+  /**
    * Initialize all modules
    */
   initModules() {
     // Initialize leaderboard
     Leaderboard.init();
 
-    // Set up filter change callback to re-render winners/losers
-    Leaderboard.onFilterChange = () => {
-      const winnersScope = parseInt(
-        document.getElementById("winners-scope").value,
-      );
-      const losersScope = parseInt(
-        document.getElementById("losers-scope").value,
-      );
-      const timeScope = parseInt(document.getElementById("time-scope").value);
-      this.renderStats(winnersScope, losersScope, timeScope);
-    };
+    // Populate country filter dropdown
+    this.populateCountryFilter();
 
     // Initialize timeline with callback
     Timeline.init(this.data.snapshots, (snapshot, previousSnapshot) => {
@@ -322,34 +397,49 @@ const App = {
   /**
    * Render statistics cards
    */
-  renderStats(winnersScope = 500, losersScope = 500, timeDays = 0) {
-    // Check if we should filter to pros only
-    const prosOnly = Leaderboard.teamsOnly;
+  renderStats(rankScope = 500, timeDays = 0) {
+    // Read global filter state
+    const prosOnly = this.prosOnly;
+    const countryFilter = this.selectedCountry;
+
+    const needsPostFilter = prosOnly || countryFilter;
 
     let winners = Stats.getWinners(
       this.playerHistory,
-      prosOnly ? 50 : 5, // Fetch more if filtering
-      winnersScope,
+      needsPostFilter ? 500 : 5,
+      rankScope,
       timeDays,
       this.data.snapshots,
     );
     let losers = Stats.getLosers(
       this.playerHistory,
-      prosOnly ? 50 : 5, // Fetch more if filtering
-      losersScope,
+      needsPostFilter ? 500 : 5,
+      rankScope,
       timeDays,
       this.data.snapshots,
     );
 
     // Filter to pros only if enabled
     if (prosOnly) {
-      winners = winners
-        .filter((p) => p.team_tag && p.team_tag.trim() !== "")
-        .slice(0, 5);
-      losers = losers
-        .filter((p) => p.team_tag && p.team_tag.trim() !== "")
-        .slice(0, 5);
+      winners = winners.filter((p) => p.team_tag && p.team_tag.trim() !== "");
+      losers = losers.filter((p) => p.team_tag && p.team_tag.trim() !== "");
     }
+
+    // Filter by country if selected
+    if (countryFilter) {
+      winners = winners.filter(
+        (p) =>
+          p.country && p.country.toLowerCase() === countryFilter.toLowerCase(),
+      );
+      losers = losers.filter(
+        (p) =>
+          p.country && p.country.toLowerCase() === countryFilter.toLowerCase(),
+      );
+    }
+
+    // Limit to 5 results after all filters
+    winners = winners.slice(0, 5);
+    losers = losers.slice(0, 5);
 
     // Render winners
     const winnersList = document.getElementById("winners-list");
@@ -436,7 +526,7 @@ const App = {
     });
 
     // Render team changes
-    this.renderTeamChanges(timeDays);
+    this.renderTeamChanges(timeDays, rankScope);
   },
 
   /**
@@ -465,9 +555,7 @@ const App = {
   renderFavorites() {
     const section = document.getElementById("favorites-section");
     const list = document.getElementById("favorites-list");
-    const timeDays = parseInt(
-      document.getElementById("favorites-time-scope").value,
-    );
+    const timeDays = parseInt(document.getElementById("time-scope").value);
 
     const favoriteIds = Favorites.getAll();
 
@@ -603,12 +691,27 @@ const App = {
   /**
    * Render team changes section
    */
-  renderTeamChanges(timeDays) {
-    const changes = Stats.getTeamChanges(this.data.snapshots, timeDays);
+  renderTeamChanges(timeDays, rankScope = 500) {
+    let changes = Stats.getTeamChanges(this.data.snapshots, timeDays);
     const section = document.getElementById("team-changes-section");
     const list = document.getElementById("team-changes-list");
     const countSpan = document.getElementById("team-changes-count");
     const toggleBtn = document.getElementById("team-changes-toggle");
+
+    // Apply global filters to team changes
+    if (rankScope < 500) {
+      changes = changes.filter((c) => c.rank != null && c.rank <= rankScope);
+    }
+    if (this.prosOnly) {
+      changes = changes.filter((c) => c.fromTeam || c.toTeam);
+    }
+    if (this.selectedCountry) {
+      changes = changes.filter(
+        (c) =>
+          c.country &&
+          c.country.toLowerCase() === this.selectedCountry.toLowerCase(),
+      );
+    }
 
     if (changes.length === 0) {
       section.classList.add("hidden");
@@ -740,64 +843,131 @@ const App = {
   },
 
   /**
-   * Setup scope filter dropdowns
+   * Setup global filter bar controls
    */
-  setupScopeFilters() {
-    const winnersSelect = document.getElementById("winners-scope");
-    const losersSelect = document.getElementById("losers-scope");
+  setupGlobalFilters() {
+    const rankScopeSelect = document.getElementById("rank-scope");
     const timeSelect = document.getElementById("time-scope");
-    const timeSelectLosers = document.getElementById("time-scope-losers");
+    const prosToggle = document.getElementById("pros-only-toggle");
 
-    const getScopes = () => ({
-      winners: parseInt(winnersSelect.value),
-      losers: parseInt(losersSelect.value),
-      time: parseInt(timeSelect.value),
-    });
-
-    winnersSelect.addEventListener("change", () => {
-      losersSelect.value = winnersSelect.value; // Sync losers dropdown
-      const scopes = getScopes();
-      localStorage.setItem("winnersScope", winnersSelect.value);
-      localStorage.setItem("losersScope", winnersSelect.value);
-      this.renderStats(scopes.winners, scopes.losers, scopes.time);
-    });
-
-    losersSelect.addEventListener("change", () => {
-      winnersSelect.value = losersSelect.value; // Sync winners dropdown
-      const scopes = getScopes();
-      localStorage.setItem("winnersScope", losersSelect.value);
-      localStorage.setItem("losersScope", losersSelect.value);
-      this.renderStats(scopes.winners, scopes.losers, scopes.time);
-    });
-
-    const favoritesTimeSelect = document.getElementById("favorites-time-scope");
-
-    const syncAllTimeSelects = (value) => {
-      timeSelect.value = value;
-      timeSelectLosers.value = value;
-      favoritesTimeSelect.value = value;
-      localStorage.setItem("timeScope", value);
+    const rerender = () => {
+      const rankScope = parseInt(rankScopeSelect.value);
+      const timeScope = parseInt(timeSelect.value);
+      this.renderStats(rankScope, timeScope);
+      this.renderFavorites();
+      this.renderInitialLeaderboard();
     };
 
+    rankScopeSelect.addEventListener("change", () => {
+      localStorage.setItem("rankScope", rankScopeSelect.value);
+      rerender();
+    });
+
     timeSelect.addEventListener("change", () => {
-      syncAllTimeSelects(timeSelect.value);
-      const scopes = getScopes();
-      this.renderStats(scopes.winners, scopes.losers, scopes.time);
-      this.renderFavorites();
+      localStorage.setItem("timeScope", timeSelect.value);
+      rerender();
     });
 
-    timeSelectLosers.addEventListener("change", () => {
-      syncAllTimeSelects(timeSelectLosers.value);
-      const scopes = getScopes();
-      this.renderStats(scopes.winners, scopes.losers, scopes.time);
-      this.renderFavorites();
+    prosToggle.addEventListener("click", () => {
+      this.prosOnly = !this.prosOnly;
+      localStorage.setItem("prosOnly", this.prosOnly);
+      prosToggle.classList.toggle("active", this.prosOnly);
+      rerender();
     });
 
-    favoritesTimeSelect.addEventListener("change", () => {
-      syncAllTimeSelects(favoritesTimeSelect.value);
-      const scopes = getScopes();
-      this.renderStats(scopes.winners, scopes.losers, scopes.time);
-      this.renderFavorites();
+    // Country picker (combobox)
+    const pickerInput = document.getElementById("country-picker-input");
+    const pickerDropdown = document.getElementById("country-picker-dropdown");
+    const pickerOptions = document.getElementById("country-picker-options");
+    const pickerFlag = document.getElementById("country-picker-flag");
+    const pickerClear = document.getElementById("country-picker-clear");
+
+    const openPicker = () => {
+      if (!pickerDropdown.classList.contains("hidden")) return;
+      const query = pickerInput.value.toLowerCase();
+      const filtered = (this.countryList || []).filter((code) => {
+        const name = this.getCountryName(code).toLowerCase();
+        return name.includes(query) || code.includes(query);
+      });
+      this.renderCountryOptions(filtered);
+      pickerDropdown.classList.remove("hidden");
+    };
+
+    const closePicker = () => {
+      pickerDropdown.classList.add("hidden");
+    };
+
+    const selectCountry = (code) => {
+      this.selectedCountry = code;
+      localStorage.setItem("selectedCountry", code);
+      if (code) {
+        pickerInput.value = this.getCountryName(code);
+        pickerFlag.src = Stats.getFlagUrl(code);
+        pickerFlag.classList.remove("hidden");
+        pickerFlag.style.display = "";
+        pickerClear.classList.remove("hidden");
+      } else {
+        pickerInput.value = "";
+        pickerFlag.classList.add("hidden");
+        pickerClear.classList.add("hidden");
+      }
+      closePicker();
+      rerender();
+    };
+
+    pickerInput.addEventListener("focus", () => {
+      pickerInput.select();
+      openPicker();
+    });
+
+    pickerInput.addEventListener("input", () => {
+      const query = pickerInput.value.toLowerCase();
+      const filtered = (this.countryList || []).filter((code) => {
+        const name = this.getCountryName(code).toLowerCase();
+        return name.includes(query) || code.includes(query);
+      });
+      this.renderCountryOptions(filtered);
+      if (pickerDropdown.classList.contains("hidden")) {
+        pickerDropdown.classList.remove("hidden");
+      }
+    });
+
+    pickerClear.addEventListener("click", (e) => {
+      e.stopPropagation();
+      selectCountry("");
+      pickerInput.focus();
+    });
+
+    pickerOptions.addEventListener("click", (e) => {
+      const option = e.target.closest(".country-option");
+      if (!option) return;
+      selectCountry(option.dataset.value);
+    });
+
+    // Close picker on click outside
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest("#country-picker")) {
+        closePicker();
+        // If user typed something that doesn't match, restore previous value
+        if (this.selectedCountry) {
+          pickerInput.value = this.getCountryName(this.selectedCountry);
+        } else {
+          pickerInput.value = "";
+        }
+      }
+    });
+
+    // Close picker on ESC
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !pickerDropdown.classList.contains("hidden")) {
+        closePicker();
+        pickerInput.blur();
+        if (this.selectedCountry) {
+          pickerInput.value = this.getCountryName(this.selectedCountry);
+        } else {
+          pickerInput.value = "";
+        }
+      }
     });
   },
 
@@ -808,10 +978,11 @@ const App = {
     const toggle = document.getElementById("expand-toggle");
     const app = document.querySelector(".app");
 
-    // Always start in expanded mode (showing header and stats)
     toggle.addEventListener("click", () => {
       const isNowCompact = app.classList.toggle("compact");
-      toggle.textContent = isNowCompact ? "↙" : "↗";
+      toggle.innerHTML = isNowCompact
+        ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>'
+        : '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
       toggle.title = isNowCompact
         ? "Show header and stats"
         : "Toggle compact mode";
@@ -844,6 +1015,9 @@ const App = {
     return text.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   },
 };
+
+// Export for use in other modules
+window.App = App;
 
 // Start the app when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {

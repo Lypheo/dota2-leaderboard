@@ -7,9 +7,7 @@ const Leaderboard = {
   currentPlayers: [],
   previousSnapshot: null,
   animationSpeed: 1, // Timeline speed (1, 2, or 5)
-  teamsOnly: false, // Filter to show only players with teams
   currentSnapshot: null, // Store current snapshot for re-rendering on filter change
-  onFilterChange: null, // Callback when filter changes
 
   /**
    * Get animation durations based on timeline speed
@@ -42,49 +40,6 @@ const Leaderboard = {
    */
   init() {
     this.container = document.getElementById("leaderboard-list");
-
-    // Load teams-only preference from localStorage
-    this.teamsOnly = localStorage.getItem("teamsOnly") === "true";
-
-    // Set up teams-only toggle
-    const teamsToggle = document.getElementById("teams-only-toggle");
-    if (teamsToggle) {
-      if (this.teamsOnly) {
-        teamsToggle.classList.add("active");
-      }
-      teamsToggle.addEventListener("click", () => this.toggleTeamsOnly());
-    }
-  },
-
-  /**
-   * Toggle teams-only filter
-   */
-  toggleTeamsOnly() {
-    this.teamsOnly = !this.teamsOnly;
-    localStorage.setItem("teamsOnly", this.teamsOnly);
-
-    const teamsToggle = document.getElementById("teams-only-toggle");
-    if (teamsToggle) {
-      teamsToggle.classList.toggle("active", this.teamsOnly);
-    }
-
-    // Re-render with current snapshot
-    if (this.currentSnapshot) {
-      this.render(this.currentSnapshot, this.previousSnapshot, false);
-    }
-
-    // Notify callback if set (for updating winners/losers)
-    if (this.onFilterChange) {
-      this.onFilterChange(this.teamsOnly);
-    }
-  },
-
-  /**
-   * Filter players based on current filter settings
-   */
-  filterPlayers(players) {
-    if (!this.teamsOnly) return players;
-    return players.filter((p) => p.team_tag && p.team_tag.trim() !== "");
   },
 
   /**
@@ -100,11 +55,27 @@ const Leaderboard = {
       this.previousSnapshot = previousSnapshot;
     }
 
-    // Apply filter
-    const players = this.filterPlayers(snapshot.players);
-    const prevPlayers = previousSnapshot
-      ? this.filterPlayers(previousSnapshot.players)
-      : [];
+    // Apply global filters
+    let players = snapshot.players;
+    let prevPlayers = previousSnapshot ? previousSnapshot.players : [];
+
+    if (window.App) {
+      if (App.selectedCountry) {
+        const country = App.selectedCountry.toLowerCase();
+        players = players.filter(
+          (p) => p.country && p.country.toLowerCase() === country,
+        );
+        prevPlayers = prevPlayers.filter(
+          (p) => p.country && p.country.toLowerCase() === country,
+        );
+      }
+      if (App.prosOnly) {
+        players = players.filter((p) => p.team_tag && p.team_tag.trim() !== "");
+        prevPlayers = prevPlayers.filter(
+          (p) => p.team_tag && p.team_tag.trim() !== "",
+        );
+      }
+    }
 
     // Build a map of previous ranks for comparison
     const prevRanks = {};

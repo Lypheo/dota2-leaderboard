@@ -133,6 +133,186 @@ body {
   border-color: #d13a52;
 }
 
+/* Global Filter Bar */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.filter-select {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.filter-select:hover,
+.filter-select:focus {
+  border-color: var(--accent);
+}
+
+.filter-select option {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.filter-toggle {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 5px 12px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.filter-toggle:hover {
+  border-color: var(--accent);
+}
+
+.filter-toggle.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+/* Country Picker */
+.country-picker {
+  position: relative;
+}
+
+.country-picker-input-wrap {
+  display: flex;
+  align-items: center;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0 6px;
+  gap: 6px;
+  transition: border-color 0.2s;
+  min-width: 170px;
+}
+
+.country-picker-input-wrap:focus-within {
+  border-color: var(--accent);
+}
+
+.country-picker-flag {
+  width: 16px;
+  height: 11px;
+  flex-shrink: 0;
+}
+
+.country-picker-input {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  padding: 5px 0;
+  font-size: 0.85rem;
+  outline: none;
+  width: 100%;
+  min-width: 0;
+  font-family: inherit;
+}
+
+.country-picker-input::placeholder {
+  color: var(--text-muted);
+}
+
+.country-picker-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.country-picker-clear:hover {
+  color: var(--text-primary);
+}
+
+.country-picker-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  width: 280px;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.country-picker-options {
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+.country-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.country-option:hover {
+  background: var(--bg-tertiary);
+}
+
+.country-option.selected {
+  background: rgba(233, 69, 96, 0.15);
+  color: var(--accent);
+}
+
+.country-option .country-code {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
 /* Loading & Error States */
 .loading, .error {
   display: flex;
@@ -660,6 +840,9 @@ section.team-changes-section {
   padding: 4px;
   border-radius: 4px;
   transition: color 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .expand-toggle:hover {
@@ -675,36 +858,16 @@ section.team-changes-section {
   margin-right: 8px;
 }
 
-.header-toggle {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 0.7rem;
-  padding: 3px 8px;
-  border-radius: 4px;
-  transition: all 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.header-toggle:hover {
-  color: var(--text-secondary);
-  border-color: var(--text-muted);
-}
-
-.header-toggle.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--text-primary);
-}
-
-/* Compact mode - hide header and stats */
+/* Compact mode - hide header, filter bar and stats */
 .header,
 .stats-section,
 .favorites-team-row {
   transition: opacity 0.3s ease, max-height 0.3s ease, margin 0.3s ease, padding 0.3s ease;
   overflow: hidden;
+}
+
+.filter-bar {
+  transition: opacity 0.3s ease, max-height 0.3s ease, margin 0.3s ease, padding 0.3s ease;
 }
 
 .app.compact .header,
@@ -717,12 +880,25 @@ section.team-changes-section {
   pointer-events: none;
 }
 
+.app.compact .filter-bar {
+  opacity: 0;
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
 .header {
   max-height: 100px;
 }
 
 .stats-section {
   max-height: 400px;
+}
+
+.filter-bar {
+  max-height: 100px;
 }
 
 .favorites-team-row {
@@ -1284,9 +1460,38 @@ section.team-changes-section {
     margin-right: 0;
   }
 
-  .header-toggle {
-    font-size: 0.6rem;
-    padding: 2px 5px;
+  .filter-bar {
+    gap: 8px;
+    padding: 8px 12px;
+    max-height: none;
+  }
+
+  .filter-label {
+    font-size: 0.65rem;
+  }
+
+  .filter-select {
+    font-size: 0.75rem;
+    padding: 4px 6px;
+  }
+
+  .filter-toggle {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+
+  .country-picker-input-wrap {
+    min-width: 130px;
+  }
+
+  .country-picker-input {
+    font-size: 0.75rem;
+  }
+
+  .country-picker-dropdown {
+    width: 220px;
+    right: 0;
+    left: auto;
   }
 
   .col-flag,
