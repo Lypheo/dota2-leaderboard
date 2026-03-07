@@ -34,7 +34,7 @@ jobs:
       - name: Commit and push changes
         id: commit
         run: |
-          git config --local user.email "schon.fredrik@gmail.com"
+          git config --local user.email "actions@github.com"
           git config --local user.name "maakep-bot"
           git add leaderboard/*.json
           if git diff --staged --quiet; then
