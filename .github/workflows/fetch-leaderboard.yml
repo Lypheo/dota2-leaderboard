@@ -2,8 +2,8 @@ name: Fetch Dota 2 Leaderboard
 
 on:
   schedule:
-    # Run at minute 15 of every hour
-    - cron: "15 * * * *"
+    # Run once per day at 12:15 UTC
+    - cron: "15 12 * * *"
   workflow_dispatch: # Allow manual triggering
 
 jobs:
@@ -19,29 +19,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch Europe leaderboard data
-        run: curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=europe&leaderboard=0" | jq '.leaderboard[:5000]' > leaderboard/europe.json
+      - name: Fetch Europe leaderboard snapshot
+        run: |
+          DATE=$(date -u +'%Y-%m-%d')
+          mkdir -p data/snapshots/europe
+          curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=europe&leaderboard=0" \
+            | jq '[.leaderboard[:5000][] | {r:.rank, n:.name, t:.team_tag, i:.team_id, c:.country}]' \
+            > "data/snapshots/europe/${DATE}.json"
 
-      - name: Fetch China leaderboard data
-        run: curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=china&leaderboard=0" | jq '.leaderboard[:5000]' > leaderboard/china.json
-
-      - name: Fetch SEA leaderboard data
-        run: curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=se_asia&leaderboard=0" | jq '.leaderboard[:5000]' > leaderboard/sea.json
-
-      - name: Fetch Americas leaderboard data
-        run: curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=americas&leaderboard=0" | jq '.leaderboard[:5000]' > leaderboard/americas.json
-
-      - name: Commit and push changes
+      - name: Commit and push snapshot
         id: commit
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "maakep-bot"
-          git add leaderboard/*.json
+          git add data/snapshots/
           if git diff --staged --quiet; then
             echo "No changes to commit"
             echo "changes=false" >> $GITHUB_OUTPUT
           else
-            git commit -m "update leaderboard data - $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git commit -m "snapshot europe - $(date -u +'%Y-%m-%d')"
             git push
             echo "changes=true" >> $GITHUB_OUTPUT
           fi

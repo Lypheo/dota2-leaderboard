@@ -61,22 +61,20 @@ Click any player to see their:
 
 ## 🛠️ How It Works
 
-1. **GitHub Actions** runs hourly to fetch the latest Europe leaderboard
-2. **Git history** stores every snapshot (big brain move tbh)
-3. **Extract script** pulls historical data from git commits and crops to top 5000
+1. **GitHub Actions** runs daily to fetch the Europe leaderboard
+2. **Daily snapshots** are stored as compact JSON files in `data/snapshots/europe/`
+3. **Extract script** builds a columnar history file from all snapshots
 4. **Static web app** renders it all with vanilla JS (no framework drama)
 5. **GitHub Pages** hosts it for free (EZ Clap)
 
-The entire history lives in git commits. We literally turned git into a time-series database. Is this cursed? Maybe. Does it work? Absolutely.
+History is stored as individual daily snapshot files — no git history abuse. The compact columnar format means player metadata is stored once instead of repeated per snapshot, keeping the web payload small.
 
 ---
 
 ## 🏃 Running Locally
 
 ```bash
-# Install dependencies (turn up, there aren't any lol, it's vanilla JS)
-
-# Extract history from git commits
+# Extract history from snapshot files
 node scripts/extract-history.js
 
 # Serve the web folder
@@ -90,36 +88,39 @@ npx serve web
 ## 📁 Project Structure
 
 ```
-├── leaderboard/
-│   ├── americas.json        # Americas leaderboard (updated hourly)
-│   ├── europe.json          # Europe leaderboard (updated hourly)
-│   ├── sea.json             # SE Asia leaderboard (updated hourly)
-│   └── china.json           # China leaderboard (updated hourly)
+├── data/
+│   └── snapshots/
+│       └── europe/
+│           ├── 2026-01-01.json    # One file per day (compact format)
+│           ├── 2026-01-02.json
+│           └── ...
 ├── scripts/
-│   └── extract-history.js   # Extracts snapshots from git history
+│   └── extract-history.js         # Builds web history from snapshots
 ├── web/
-│   ├── index.html           # The one HTML file to rule them all
-│   ├── css/styles.css       # Dark mode only (we're not animals)
+│   ├── index.html                 # The one HTML file to rule them all
+│   ├── css/styles.css             # Dark mode only (we're not animals)
 │   ├── js/
-│   │   ├── app.js           # Main coordinator + region switching
-│   │   ├── leaderboard.js   # Table rendering + animations
-│   │   ├── timeline.js      # Playback controls
-│   │   ├── stats.js         # Winners/losers calculations
-│   │   └── player-modal.js  # Player detail popup
+│   │   ├── app.js                 # Main coordinator
+│   │   ├── leaderboard.js         # Table rendering + animations
+│   │   ├── timeline.js            # Playback controls
+│   │   ├── stats.js               # Winners/losers calculations
+│   │   └── player-modal.js        # Player detail popup
 │   └── data/
-│       └── history-*.json   # Generated timeline data per region
-└── .github/workflows/       # The automation magic
+│       └── history-europe.json    # Generated compact columnar history
+└── .github/workflows/             # The automation magic
 ```
 
 ---
 
 ## 🧠 Why This Is Actually Genius
 
-- **Zero backend costs** — Git is the database, GitHub Pages is the host
-- **Full history preserved** — Every hourly snapshot, forever
+- **Zero backend costs** — Daily snapshots as files, GitHub Pages is the host
+- **Full history preserved** — Every daily snapshot, forever, unlimited time window
+- **No git history abuse** — Data stored as individual files, not mined from commits
+- **Compact columnar format** — Player metadata stored once, not per-snapshot
 - **Smooth animations** — Players visually slide to their new positions
 - **Speed-aware animations** — Faster playback = snappier transitions
-- **Works offline** — Once loaded, no server needed
+- **Fast builds** — Shallow clone is sufficient (no `fetch-depth: 0`)
 
 Could a human have built this? Sure. Would it have taken 10x longer with 10x more Stack Overflow tabs? Also yes.
 
@@ -127,7 +128,7 @@ Could a human have built this? Sure. Would it have taken 10x longer with 10x mor
 
 ## 🎮 Dota Leaderboard Pro Tips
 
-- The leaderboard updates hourly-ish
+- The leaderboard updates daily
 - Ranks can swing wildly during patch days
 - That pro player "taking a break from streaming" is probably on here grinding
 - If you see someone drop 200 ranks overnight, pour one out

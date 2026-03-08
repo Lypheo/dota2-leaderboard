@@ -1,258 +1,131 @@
 #!/usr/bin/env node
 
 /**
- * Extract leaderboard history from git commits
+ * Extract leaderboard history from daily snapshot files
  *
- * Outputs a history JSON file for each region to web/data/:
- *   - history-americas.json
- *   - history-europe.json
- *   - history-sea.json
- *   - history-china.json
+ * Reads from: data/snapshots/europe/YYYY-MM-DD.json
+ * Outputs:    web/data/history-europe.json (compact columnar format)
  *
- * These files are loaded by the web app based on the selected region.
+ * The compact format stores player metadata once and uses arrays indexed by
+ * date for ranks and run-length-encoded team history, dramatically reducing
+ * file size compared to the old per-snapshot-repeated-objects format.
  */
 
-const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
 // Configuration
 const CONFIG = {
-  MAX_DAYS: 140, // How many days of history to include
-  MAX_SNAPSHOTS: 3360, // Maximum snapshots (140 days * 24 hours)
-  REGIONS: [
-    { id: "europe", file: "leaderboard/europe.json" },
-    { id: "americas", file: "leaderboard/americas.json" },
-    { id: "sea", file: "leaderboard/sea.json" },
-    { id: "china", file: "leaderboard/china.json" },
-  ],
+  SNAPSHOTS_DIR: "data/snapshots/europe",
   OUTPUT_DIR: "web/data",
-  REGISTRY_DIR: "web/data",
+  OUTPUT_FILE: "history-europe.json",
 };
 
 /**
- * Execute a git command and return the output
+ * Read all snapshot files from disk, sorted chronologically
+ * @returns {Array<{date: string, players: Array}>}
  */
-function git(command) {
-  try {
-    return execSync(`git ${command}`, {
-      encoding: "utf-8",
-      maxBuffer: 50 * 1024 * 1024,
-    });
-  } catch (error) {
-    console.error(`Git command failed: git ${command}`);
-    console.error(error.message);
-    return null;
+function readSnapshots() {
+  const snapshotsDir = CONFIG.SNAPSHOTS_DIR;
+
+  if (!fs.existsSync(snapshotsDir)) {
+    console.error(`Snapshots directory not found: ${snapshotsDir}`);
+    return [];
   }
-}
 
-/**
- * Get all commits that modified a leaderboard file
- */
-function getLeaderboardCommits(leaderboardFile) {
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - CONFIG.MAX_DAYS);
-  const since = cutoffDate.toISOString().split("T")[0];
+  const files = fs
+    .readdirSync(snapshotsDir)
+    .filter((f) => f.endsWith(".json"))
+    .sort(); // YYYY-MM-DD.json sorts chronologically
 
-  // Get commits with hash, date, and message
-  const log = git(
-    `log --since="${since}" --format="%H|%aI|%s" -- "${leaderboardFile}"`,
-  );
+  console.log(`Found ${files.length} snapshot files`);
 
-  if (!log) return [];
+  const snapshots = [];
 
-  const commits = log
-    .trim()
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => {
-      const [hash, date, ...messageParts] = line.split("|");
-      const message = messageParts.join("|");
+  for (const file of files) {
+    const date = file.replace(".json", "");
+    const filePath = path.join(snapshotsDir, file);
 
-      // Try to parse timestamp from commit message (format: "update leaderboard data - 2026-01-16 11:31 UTC")
-      let timestamp = date;
-      const match = message.match(/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*UTC/);
-      if (match) {
-        timestamp = new Date(match[1] + " UTC").toISOString();
+    try {
+      const content = fs.readFileSync(filePath, "utf-8");
+      let players = JSON.parse(content);
+
+      if (!Array.isArray(players) || players.length === 0) {
+        console.warn(`  ⚠️ Skipping empty snapshot: ${file}`);
+        continue;
       }
 
-      return {
-        hash,
-        timestamp,
-        message,
-      };
-    });
+      // Normalize player fields (handle both compact and full key formats)
+      players = players.slice(0, 5000).map((p) => ({
+        rank: p.r ?? p.rank,
+        name: p.n ?? p.name,
+        team_tag: p.t ?? p.team_tag ?? null,
+        team_id: p.i ?? p.team_id ?? null,
+        country: p.c ?? p.country ?? null,
+      }));
 
-  return commits;
-}
-
-/**
- * Get the leaderboard content at a specific commit
- */
-function getLeaderboardAtCommit(commitHash, leaderboardFile) {
-  const content = git(`show ${commitHash}:"${leaderboardFile}"`);
-  if (!content) return null;
-
-  try {
-    let players = JSON.parse(content);
-
-    // Skip empty snapshots
-    if (!players || players.length === 0) {
-      console.log(`  Skipping empty snapshot at ${commitHash}`);
-      return null;
-    }
-
-    // Crop to top 5000 players
-    if (players.length > 5000) {
-      players = players.slice(0, 5000);
-    }
-
-    // Only keep necessary fields to reduce file size
-    // ID uses name|country only (not team) so team changes don't split history
-    return players.map((p) => ({
-      id: `${p.name}|${p.country || ""}`,
-      rank: p.rank,
-      name: p.name,
-      team_tag: p.team_tag || null,
-      team_id: p.team_id || null,
-      country: p.country || null,
-    }));
-  } catch (error) {
-    console.error(`Failed to parse JSON at commit ${commitHash}`);
-    return null;
-  }
-}
-
-/**
- * Load the persistent player registry for a region.
- * The registry maps name|country combos to stable canonical IDs.
- * It persists across extraction runs so IDs survive the 140-day window rotation.
- *
- * @param {string} regionId - Region identifier
- * @returns {Object} { canonicalIds: { combo -> stableId }, aliases: { combo -> stableId } }
- */
-function loadRegistry(regionId) {
-  const registryPath = path.join(
-    CONFIG.REGISTRY_DIR,
-    `registry-${regionId}.json`,
-  );
-
-  if (fs.existsSync(registryPath)) {
-    try {
-      const data = JSON.parse(fs.readFileSync(registryPath, "utf-8"));
-      console.log(
-        `  📂 Loaded registry with ${Object.keys(data.canonicalIds || {}).length} active and ${Object.keys(data.aliases || {}).length} alias entries`,
-      );
-      return {
-        canonicalIds: data.canonicalIds || {},
-        aliases: data.aliases || {},
-      };
+      snapshots.push({ date, players });
     } catch (error) {
-      console.warn(
-        `  ⚠️ Failed to load registry, starting fresh: ${error.message}`,
-      );
+      console.warn(`  ⚠️ Failed to parse ${file}: ${error.message}`);
     }
   }
 
-  return { canonicalIds: {}, aliases: {} };
+  return snapshots;
 }
 
 /**
- * Save the persistent player registry for a region.
+ * Resolve player identities across snapshots.
  *
- * @param {string} regionId - Region identifier
- * @param {Object} registry - { canonicalIds, aliases }
+ * The API has no player IDs. We use name|country as the key, but when a player
+ * changes country they appear as a "new" player. This function detects such
+ * changes by looking for a name that disappeared with one country and appeared
+ * with another in the same snapshot.
+ *
+ * @param {Array} snapshots - Chronologically sorted snapshots
+ * @returns {{idMap: Object, aliases: Object}} Maps for ID resolution
  */
-function saveRegistry(regionId, registry) {
-  const registryPath = path.join(
-    CONFIG.REGISTRY_DIR,
-    `registry-${regionId}.json`,
-  );
-  fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2));
-  const fileSizeKB = (fs.statSync(registryPath).size / 1024).toFixed(1);
-  console.log(
-    `  💾 Saved registry (${Object.keys(registry.canonicalIds).length} active, ${Object.keys(registry.aliases).length} aliases, ${fileSizeKB} KB)`,
-  );
-}
-
-/**
- * Resolve player identities across snapshots using a persistent registry.
- *
- * Problem: The API has no player IDs. We use name|country as key, but when a
- * player changes country, they appear as a "new" player and their history splits.
- *
- * Solution: Maintain a persistent registry that maps name|country combos to
- * stable canonical IDs. The registry survives across extraction runs, so even
- * when old snapshots fall off the 140-day window, IDs remain stable.
- *
- * On each run:
- * 1. Load existing registry from disk
- * 2. Process snapshots chronologically, detecting country changes
- * 3. When a name|country combo appears that we haven't seen, check if exactly
- *    ONE registered player with that name "disappeared" → country change
- * 4. Save updated registry to disk
- *
- * The registry has two maps:
- * - canonicalIds: current active name|country → stable ID
- * - aliases: all historical name|country → stable ID (for favorite migration)
- *
- * Edge cases handled:
- * - Two players with the same name (different countries): kept separate
- * - Ambiguous merges (2+ same-name players disappeared): treated as new (safe)
- * - Team changes: don't affect identity (team is not part of the key)
- * - Window rotation: old IDs preserved in registry file
- *
- * @param {Array} snapshots - Snapshots in chronological order (oldest first)
- * @param {string} regionId - Region identifier for loading/saving registry
- * @returns {number} Number of identity merges performed in this run
- */
-function resolvePlayerIdentities(snapshots, regionId) {
-  const registry = loadRegistry(regionId);
-  const { canonicalIds, aliases } = registry;
+function resolveIdentities(snapshots) {
+  // canonicalIds: current name|country -> stable ID
+  // aliases: all historical name|country -> stable ID
+  const canonicalIds = {};
+  const aliases = {};
   let mergeCount = 0;
 
   for (const snapshot of snapshots) {
-    // Collect all name|country combos present in this snapshot
     const currentCombos = new Set(
       snapshot.players.map((p) => `${p.name}|${p.country || ""}`),
     );
 
-    // First pass: assign IDs to players with known combos (active or alias)
     const unresolved = [];
+
+    // First pass: assign known IDs
     for (const player of snapshot.players) {
       const combo = `${player.name}|${player.country || ""}`;
       if (canonicalIds[combo]) {
         player.id = canonicalIds[combo];
       } else if (aliases[combo]) {
-        // Known alias (e.g., player returned to a previous country)
         player.id = aliases[combo];
-        // Re-activate this combo in the active map
         canonicalIds[combo] = aliases[combo];
       } else {
         unresolved.push(player);
       }
     }
 
-    // Second pass: try to resolve unknown combos by detecting country changes
+    // Second pass: detect country changes
     for (const player of unresolved) {
       const combo = `${player.name}|${player.country || ""}`;
       const name = player.name;
 
-      // Find registered players with the same name whose old name|country
-      // combo is NOT in the current snapshot (they "disappeared")
       const disappeared = Object.entries(canonicalIds).filter(([nc]) => {
         const ncName = nc.substring(0, nc.lastIndexOf("|"));
         return ncName === name && !currentCombos.has(nc);
       });
 
       if (disappeared.length === 1) {
-        // Exactly one player with this name disappeared → country change
         const [oldCombo, stableId] = disappeared[0];
         player.id = stableId;
-        // Update active map: old combo no longer active, new combo points to same ID
         delete canonicalIds[oldCombo];
         canonicalIds[combo] = stableId;
-        // Record both old and new as aliases for favorite migration
         aliases[oldCombo] = stableId;
         aliases[combo] = stableId;
         mergeCount++;
@@ -260,7 +133,6 @@ function resolvePlayerIdentities(snapshots, regionId) {
           `  🔗 Merged identity: ${oldCombo} → ${combo} (ID: ${stableId})`,
         );
       } else {
-        // New player or ambiguous (multiple same-name players disappeared)
         canonicalIds[combo] = combo;
         aliases[combo] = combo;
         player.id = combo;
@@ -268,138 +140,149 @@ function resolvePlayerIdentities(snapshots, regionId) {
     }
   }
 
-  // Save updated registry
-  saveRegistry(regionId, { canonicalIds, aliases });
-
-  return mergeCount;
+  console.log(`  Merged ${mergeCount} identity change(s)`);
+  return { canonicalIds, aliases };
 }
 
 /**
- * Sample commits if there are too many
+ * Build compact columnar history from snapshots.
+ *
+ * Output format:
+ * {
+ *   region: "europe",
+ *   dates: ["2026-01-01", ...],
+ *   players: {
+ *     "playerId": {
+ *       n: "PlayerName",
+ *       c: "de",
+ *       r: [1, 2, null, ...],       // rank per date index, null = absent
+ *       th: [["OG", 12345, 0], ...]  // [team_tag, team_id, startDateIndex]
+ *     }
+ *   },
+ *   aliases: { "name|newcountry": "name|oldcountry" },
+ *   meta: { ... }
+ * }
  */
-function sampleCommits(commits) {
-  if (commits.length <= CONFIG.MAX_SNAPSHOTS) {
-    return commits;
+function buildCompactHistory(snapshots, aliases) {
+  const dates = snapshots.map((s) => s.date);
+  const players = {};
+
+  for (let dateIdx = 0; dateIdx < snapshots.length; dateIdx++) {
+    const snapshot = snapshots[dateIdx];
+
+    for (const player of snapshot.players) {
+      const id = player.id;
+
+      if (!players[id]) {
+        players[id] = {
+          n: player.name,
+          c: player.country,
+          r: new Array(snapshots.length).fill(null),
+          th: [], // team history: [team_tag, team_id, startDateIndex]
+        };
+      }
+
+      const p = players[id];
+      p.r[dateIdx] = player.rank;
+
+      // Update name/country to latest
+      if (player.name) p.n = player.name;
+      if (player.country) p.c = player.country;
+
+      // Track team changes
+      const currentTeam = player.team_tag || null;
+      const currentTeamId = player.team_id || null;
+      const lastTeamEntry = p.th[p.th.length - 1];
+
+      if (!lastTeamEntry || lastTeamEntry[0] !== currentTeam) {
+        p.th.push([currentTeam, currentTeamId, dateIdx]);
+      } else if (lastTeamEntry[1] !== currentTeamId) {
+        // Same tag but different ID (rare) — update ID
+        lastTeamEntry[1] = currentTeamId;
+      }
+    }
   }
 
-  console.log(
-    `Sampling ${CONFIG.MAX_SNAPSHOTS} commits from ${commits.length} total`,
-  );
-
-  const sampled = [];
-  const step = commits.length / CONFIG.MAX_SNAPSHOTS;
-
-  for (let i = 0; i < CONFIG.MAX_SNAPSHOTS; i++) {
-    const index = Math.floor(i * step);
-    sampled.push(commits[index]);
+  // Trim trailing nulls from rank arrays to save space
+  for (const p of Object.values(players)) {
+    while (p.r.length > 0 && p.r[p.r.length - 1] === null) {
+      p.r.pop();
+    }
   }
 
-  // Always include the most recent commit
-  if (sampled[sampled.length - 1] !== commits[0]) {
-    sampled[sampled.length - 1] = commits[0];
+  // Filter aliases to only include actual remaps
+  const usefulAliases = {};
+  for (const [combo, stableId] of Object.entries(aliases)) {
+    if (combo !== stableId) {
+      usefulAliases[combo] = stableId;
+    }
   }
 
-  return sampled;
+  return {
+    region: "europe",
+    dates,
+    players,
+    aliases: usefulAliases,
+    meta: {
+      generatedAt: new Date().toISOString(),
+      totalSnapshots: snapshots.length,
+      totalPlayers: Object.keys(players).length,
+      dateRange: {
+        from: dates[0],
+        to: dates[dates.length - 1],
+      },
+    },
+  };
 }
 
 /**
  * Main extraction function
  */
-async function extractHistory() {
-  // Ensure output directory exists
-  if (!fs.existsSync(CONFIG.OUTPUT_DIR)) {
-    fs.mkdirSync(CONFIG.OUTPUT_DIR, { recursive: true });
-  }
+function main() {
+  console.log("🌍 Processing EUROPE region...\n");
 
-  // Process each region
-  for (const region of CONFIG.REGIONS) {
-    console.log(`\n🌍 Processing ${region.id.toUpperCase()} region...`);
-    await extractRegionHistory(region);
-  }
-
-  console.log("\n✅ All regions processed!");
-}
-
-/**
- * Extract history for a single region
- */
-async function extractRegionHistory(region) {
-  console.log(`🔍 Finding ${region.id} leaderboard commits...`);
-
-  let commits = getLeaderboardCommits(region.file);
-  console.log(
-    `Found ${commits.length} commits in the last ${CONFIG.MAX_DAYS} days`,
-  );
-
-  if (commits.length === 0) {
-    console.warn(`⚠️ No commits found for ${region.id}, skipping...`);
-    return;
-  }
-
-  // Sample if too many commits
-  commits = sampleCommits(commits);
-
-  console.log("📦 Extracting snapshots...");
-
-  const snapshots = [];
-  let processed = 0;
-
-  // Process commits from oldest to newest
-  for (const commit of commits.reverse()) {
-    const players = getLeaderboardAtCommit(commit.hash, region.file);
-
-    if (players) {
-      snapshots.push({
-        timestamp: commit.timestamp,
-        commitHash: commit.hash.substring(0, 7),
-        players,
-      });
-    }
-
-    processed++;
-    if (processed % 10 === 0) {
-      console.log(`  Processed ${processed}/${commits.length} commits`);
-    }
-  }
-
-  console.log(
-    `✅ Extracted ${snapshots.length} valid snapshots for ${region.id}`,
-  );
+  // Read snapshots
+  const snapshots = readSnapshots();
 
   if (snapshots.length === 0) {
-    console.warn(`⚠️ No valid snapshots for ${region.id}, skipping...`);
-    return;
+    console.warn("⚠️ No snapshots found. Nothing to extract.");
+    process.exit(0);
   }
 
-  // Resolve player identities across snapshots (handles country changes)
-  console.log("🔗 Resolving player identities...");
-  const mergeCount = resolvePlayerIdentities(snapshots, region.id);
-  console.log(`  Merged ${mergeCount} identity change(s)`);
+  console.log(
+    `📅 Date range: ${snapshots[0].date} to ${snapshots[snapshots.length - 1].date}`,
+  );
 
-  // Build output
-  const output = {
-    region: region.id,
-    snapshots,
-    meta: {
-      generatedAt: new Date().toISOString(),
-      totalSnapshots: snapshots.length,
-      dateRange: {
-        from: snapshots[0]?.timestamp,
-        to: snapshots[snapshots.length - 1]?.timestamp,
-      },
-    },
-  };
+  // Resolve identities
+  console.log("\n🔗 Resolving player identities...");
+  const { aliases } = resolveIdentities(snapshots);
+
+  // Build compact history
+  console.log("\n📦 Building compact history...");
+  const history = buildCompactHistory(snapshots, aliases);
+
+  // Ensure output directory exists
+  const outputDir = CONFIG.OUTPUT_DIR;
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
 
   // Write output
-  const outputPath = path.join(CONFIG.OUTPUT_DIR, `history-${region.id}.json`);
-  fs.writeFileSync(outputPath, JSON.stringify(output));
+  const outputPath = path.join(outputDir, CONFIG.OUTPUT_FILE);
+  const json = JSON.stringify(history);
+  fs.writeFileSync(outputPath, json);
 
-  const fileSizeKB = (fs.statSync(outputPath).size / 1024).toFixed(1);
-  console.log(`💾 Written to ${outputPath} (${fileSizeKB} KB)`);
+  const fileSizeKB = (Buffer.byteLength(json) / 1024).toFixed(1);
+  const fileSizeMB = (Buffer.byteLength(json) / (1024 * 1024)).toFixed(2);
+  console.log(
+    `\n💾 Written to ${outputPath} (${fileSizeKB} KB / ${fileSizeMB} MB)`,
+  );
+  console.log(`   ${history.meta.totalSnapshots} snapshots`);
+  console.log(`   ${history.meta.totalPlayers} unique players`);
+  console.log(
+    `   ${Object.keys(history.aliases).length} identity aliases`,
+  );
+  console.log("\n✅ Done!");
 }
 
-// Run
-extractHistory().catch((error) => {
-  console.error("Fatal error:", error);
-  process.exit(1);
-});
+main();

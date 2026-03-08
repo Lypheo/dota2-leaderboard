@@ -6,35 +6,20 @@
 const App = {
   data: null,
   playerHistory: null,
-  currentRegion: "europe",
 
   // Global filter state
   prosOnly: false,
   selectedCountry: "",
-
-  // Region configuration
-  regions: {
-    americas: { name: "Americas", file: "americas" },
-    europe: { name: "Europe", file: "europe" },
-    sea: { name: "SE Asia", file: "sea" },
-    china: { name: "China", file: "china" },
-  },
 
   /**
    * Initialize the application
    */
   async init() {
     try {
-      // Determine initial region from URL hash or localStorage
-      this.currentRegion = this.getInitialRegion();
-
       // Initialize favorites
       Favorites.init();
 
-      // Setup region selector
-      this.setupRegionSelector();
-
-      // Load data for current region
+      // Load data
       await this.loadData();
 
       // Load saved filter preferences BEFORE initModules so country filter populates correctly
@@ -79,9 +64,6 @@ const App = {
       // Hide loading, show content
       document.getElementById("loading").classList.add("hidden");
       document.getElementById("main-content").classList.remove("hidden");
-
-      // Listen for hash changes
-      window.addEventListener("hashchange", () => this.handleHashChange());
     } catch (error) {
       console.error("Failed to initialize app:", error);
       document.getElementById("loading").classList.add("hidden");
@@ -90,137 +72,24 @@ const App = {
   },
 
   /**
-   * Get initial region from URL hash or localStorage
-   */
-  getInitialRegion() {
-    // Check URL hash first
-    const hash = window.location.hash.slice(1).toLowerCase();
-    if (hash && this.regions[hash]) {
-      return hash;
-    }
-
-    // Fall back to localStorage
-    const saved = localStorage.getItem("selectedRegion");
-    if (saved && this.regions[saved]) {
-      return saved;
-    }
-
-    // Default to europe
-    return "europe";
-  },
-
-  /**
-   * Handle URL hash changes
-   */
-  handleHashChange() {
-    const hash = window.location.hash.slice(1).toLowerCase();
-    if (hash && this.regions[hash] && hash !== this.currentRegion) {
-      this.switchRegion(hash);
-    }
-  },
-
-  /**
-   * Setup region selector pills
-   */
-  setupRegionSelector() {
-    const selector = document.getElementById("region-selector");
-    const pills = selector.querySelectorAll(".region-pill");
-
-    // Set initial active state
-    pills.forEach((pill) => {
-      if (pill.dataset.region === this.currentRegion) {
-        pill.classList.add("active");
-      }
-
-      pill.addEventListener("click", () => {
-        const region = pill.dataset.region;
-        if (region !== this.currentRegion) {
-          this.switchRegion(region);
-        }
-      });
-    });
-
-    // Update URL hash to reflect current region
-    window.location.hash = this.currentRegion;
-  },
-
-  /**
-   * Switch to a different region
-   */
-  async switchRegion(region) {
-    if (!this.regions[region]) return;
-
-    this.currentRegion = region;
-    localStorage.setItem("selectedRegion", region);
-    window.location.hash = region;
-
-    // Update pill states
-    document.querySelectorAll(".region-pill").forEach((pill) => {
-      pill.classList.toggle("active", pill.dataset.region === region);
-    });
-
-    // Show loading state
-    document.getElementById("main-content").classList.add("hidden");
-    document.getElementById("loading").classList.remove("hidden");
-
-    try {
-      // Reload data for new region
-      await this.loadData();
-
-      // Rebuild player history
-      this.playerHistory = Stats.buildPlayerHistory(this.data.snapshots);
-
-      // Re-initialize timeline with new data
-      Timeline.init(this.data.snapshots, (snapshot, previousSnapshot) => {
-        Leaderboard.render(snapshot, previousSnapshot, true);
-      });
-
-      // Re-initialize player modal with new history
-      PlayerModal.init(this.playerHistory, this.data.snapshots);
-
-      // Re-populate country filter with new region's countries
-      this.populateCountryFilter();
-
-      // Re-render everything
-      const rankScope = parseInt(document.getElementById("rank-scope").value);
-      const timeScope = parseInt(document.getElementById("time-scope").value);
-
-      this.renderStats(rankScope, timeScope);
-      this.renderInitialLeaderboard();
-      this.renderFavorites();
-
-      // Hide loading, show content
-      document.getElementById("loading").classList.add("hidden");
-      document.getElementById("main-content").classList.remove("hidden");
-    } catch (error) {
-      console.error("Failed to switch region:", error);
-      document.getElementById("loading").classList.add("hidden");
-      document.getElementById("error").classList.remove("hidden");
-    }
-  },
-
-  /**
-   * Load history data from JSON file for current region
+   * Load history data from compact JSON format and convert to snapshots
    */
   async loadData() {
-    const response = await fetch(`data/history-${this.currentRegion}.json`);
+    const response = await fetch("data/history-europe.json");
     if (!response.ok) {
       throw new Error(`Failed to load data: ${response.status}`);
     }
 
-    this.data = await response.json();
+    const compact = await response.json();
+
+    // Convert compact columnar format to snapshot format expected by modules
+    this.data = this.convertCompactToSnapshots(compact);
+
+    // Store aliases for favorite migration
+    this._aliases = compact.aliases || {};
 
     if (!this.data.snapshots || this.data.snapshots.length === 0) {
       throw new Error("No snapshots in data");
-    }
-
-    // Filter out empty snapshots (extraction script now crops to 5000)
-    this.data.snapshots = this.data.snapshots.filter(
-      (snapshot) => snapshot.players.length > 0,
-    );
-
-    if (this.data.snapshots.length === 0) {
-      throw new Error("No valid snapshots after filtering");
     }
 
     console.log(`Loaded ${this.data.snapshots.length} snapshots`);
@@ -233,61 +102,80 @@ const App = {
     // Build player history for stats
     this.playerHistory = Stats.buildPlayerHistory(this.data.snapshots);
 
-    // Migrate favorites that reference old name|country IDs (pre-identity-resolution)
-    await this.migrateFavorites();
+    // Migrate favorites that reference old name|country IDs
+    this.migrateFavorites();
+  },
+
+  /**
+   * Convert compact columnar format to the snapshot-based format
+   * expected by the existing Leaderboard/Timeline/Stats modules.
+   *
+   * Compact format: { dates, players: { id: { n, c, r: [...], th: [...] } } }
+   * Output format:  { region, snapshots: [{ timestamp, players: [...] }], meta }
+   */
+  convertCompactToSnapshots(compact) {
+    const snapshots = [];
+
+    for (let i = 0; i < compact.dates.length; i++) {
+      const players = [];
+
+      for (const [id, p] of Object.entries(compact.players)) {
+        const rank = i < p.r.length ? p.r[i] : null;
+        if (rank === null) continue;
+
+        // Find team at this date index from team history
+        let team_tag = null;
+        let team_id = null;
+        if (p.th && p.th.length > 0) {
+          for (let t = p.th.length - 1; t >= 0; t--) {
+            if (p.th[t][2] <= i) {
+              team_tag = p.th[t][0];
+              team_id = p.th[t][1];
+              break;
+            }
+          }
+        }
+
+        players.push({
+          id,
+          rank,
+          name: p.n,
+          team_tag,
+          team_id,
+          country: p.c,
+        });
+      }
+
+      players.sort((a, b) => a.rank - b.rank);
+
+      snapshots.push({
+        timestamp: compact.dates[i] + "T12:00:00Z",
+        players,
+      });
+    }
+
+    return {
+      region: compact.region || "europe",
+      snapshots,
+      meta: compact.meta,
+    };
   },
 
   /**
    * Migrate favorites that reference old name|country IDs.
-   * After identity resolution, a player who changed country keeps their
-   * first-seen name|country as canonical ID. If a user favorited using
-   * the newer name|country, that ID no longer exists — migrate it.
-   *
-   * Uses two sources for alias resolution:
-   * 1. Snapshot data (player.id != name|country)
-   * 2. Persistent registry aliases file (covers IDs that aged out of snapshots)
+   * Uses aliases from the compact history to find canonical IDs.
    */
-  async migrateFavorites() {
+  migrateFavorites() {
     const favoriteIds = Favorites.getAll();
     if (favoriteIds.length === 0) return;
 
-    // Build alias map from snapshot data
-    const aliasMap = {}; // name|country -> canonical ID
+    const aliases = this._aliases || {};
 
-    for (const snapshot of this.data.snapshots) {
-      for (const player of snapshot.players) {
-        const nameCountry = `${player.name}|${player.country || ""}`;
-        if (player.id && player.id !== nameCountry) {
-          aliasMap[nameCountry] = player.id;
-        }
-      }
-    }
-
-    // Also load persistent registry aliases (covers IDs outside snapshot window)
-    try {
-      const registryResponse = await fetch(
-        `data/registry-${this.currentRegion}.json`,
-      );
-      if (registryResponse.ok) {
-        const registry = await registryResponse.json();
-        if (registry.aliases) {
-          for (const [combo, stableId] of Object.entries(registry.aliases)) {
-            if (combo !== stableId && !aliasMap[combo]) {
-              aliasMap[combo] = stableId;
-            }
-          }
-        }
-      }
-    } catch (e) {
-      // Registry file may not exist yet, that's fine
-    }
-
-    // Migrate orphaned favorites
     for (const favId of favoriteIds) {
-      if (!this.playerHistory[favId] && aliasMap[favId]) {
-        console.log(`Migrating favorite: ${favId} → ${aliasMap[favId]}`);
+      if (!this.playerHistory[favId] && aliases[favId]) {
+        console.log(`Migrating favorite: ${favId} → ${aliases[favId]}`);
         Favorites.remove(favId);
-        Favorites.add(aliasMap[favId]);
+        Favorites.add(aliases[favId]);
       }
     }
   },
