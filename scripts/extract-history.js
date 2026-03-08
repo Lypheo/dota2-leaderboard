@@ -102,9 +102,9 @@ function getLeaderboardAtCommit(commitHash, leaderboardFile) {
       return null;
     }
 
-    // Crop to top 500 players (old format had 5000+)
-    if (players.length > 500) {
-      players = players.slice(0, 500);
+    // Crop to top 5000 players
+    if (players.length > 5000) {
+      players = players.slice(0, 5000);
     }
 
     // Only keep necessary fields to reduce file size

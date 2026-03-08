@@ -78,7 +78,7 @@ const Stats = {
   getWinners(
     playerHistory,
     count = 5,
-    scope = 500,
+    scope = 5000,
     timeDays = 0,
     snapshots = null,
   ) {
@@ -127,7 +127,7 @@ const Stats = {
   getLosers(
     playerHistory,
     count = 5,
-    scope = 500,
+    scope = 5000,
     timeDays = 0,
     snapshots = null,
   ) {

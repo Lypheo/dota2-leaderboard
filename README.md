@@ -63,7 +63,7 @@ Click any player to see their:
 
 1. **GitHub Actions** runs hourly to fetch the latest Europe leaderboard
 2. **Git history** stores every snapshot (big brain move tbh)
-3. **Extract script** pulls historical data from git commits and crops to top 500
+3. **Extract script** pulls historical data from git commits and crops to top 5000
 4. **Static web app** renders it all with vanilla JS (no framework drama)
 5. **GitHub Pages** hosts it for free (EZ Clap)
 

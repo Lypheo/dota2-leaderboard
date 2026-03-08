@@ -214,7 +214,7 @@ const App = {
       throw new Error("No snapshots in data");
     }
 
-    // Filter out empty snapshots (extraction script now crops to 500)
+    // Filter out empty snapshots (extraction script now crops to 5000)
     this.data.snapshots = this.data.snapshots.filter(
       (snapshot) => snapshot.players.length > 0,
     );
@@ -397,7 +397,7 @@ const App = {
   /**
    * Render statistics cards
    */
-  renderStats(rankScope = 500, timeDays = 0) {
+  renderStats(rankScope = 5000, timeDays = 0) {
     // Read global filter state
     const prosOnly = this.prosOnly;
     const countryFilter = this.selectedCountry;
@@ -406,14 +406,14 @@ const App = {
 
     let winners = Stats.getWinners(
       this.playerHistory,
-      needsPostFilter ? 500 : 5,
+      needsPostFilter ? 5000 : 5,
       rankScope,
       timeDays,
       this.data.snapshots,
     );
     let losers = Stats.getLosers(
       this.playerHistory,
-      needsPostFilter ? 500 : 5,
+      needsPostFilter ? 5000 : 5,
       rankScope,
       timeDays,
       this.data.snapshots,
@@ -691,7 +691,7 @@ const App = {
   /**
    * Render team changes section
    */
-  renderTeamChanges(timeDays, rankScope = 500) {
+  renderTeamChanges(timeDays, rankScope = 5000) {
     let changes = Stats.getTeamChanges(this.data.snapshots, timeDays);
     const section = document.getElementById("team-changes-section");
     const list = document.getElementById("team-changes-list");
@@ -699,7 +699,7 @@ const App = {
     const toggleBtn = document.getElementById("team-changes-toggle");
 
     // Apply global filters to team changes
-    if (rankScope < 500) {
+    if (rankScope < 5000) {
       changes = changes.filter((c) => c.rank != null && c.rank <= rankScope);
     }
     if (this.prosOnly) {

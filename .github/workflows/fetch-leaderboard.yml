@@ -20,16 +20,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Fetch Europe leaderboard data
-        run: curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=europe&leaderboard=0" | jq '.leaderboard[:500]' > leaderboard/europe.json
+        run: curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=europe&leaderboard=0" | jq '.leaderboard[:5000]' > leaderboard/europe.json
 
       - name: Fetch China leaderboard data
-        run: curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=china&leaderboard=0" | jq '.leaderboard[:500]' > leaderboard/china.json
+        run: curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=china&leaderboard=0" | jq '.leaderboard[:5000]' > leaderboard/china.json
 
       - name: Fetch SEA leaderboard data
-        run: curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=se_asia&leaderboard=0" | jq '.leaderboard[:500]' > leaderboard/sea.json
+        run: curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=se_asia&leaderboard=0" | jq '.leaderboard[:5000]' > leaderboard/sea.json
 
       - name: Fetch Americas leaderboard data
-        run: curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=americas&leaderboard=0" | jq '.leaderboard[:500]' > leaderboard/americas.json
+        run: curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=americas&leaderboard=0" | jq '.leaderboard[:5000]' > leaderboard/americas.json
 
       - name: Commit and push changes
         id: commit
