@@ -55,14 +55,24 @@ function readSnapshots() {
         continue;
       }
 
-      // Normalize player fields (handle both compact and full key formats)
-      players = players.slice(0, 5000).map((p) => ({
-        rank: p.r ?? p.rank,
-        name: p.n ?? p.name,
-        team_tag: p.t ?? p.team_tag ?? null,
-        team_id: p.i ?? p.team_id ?? null,
-        country: p.c ?? p.country ?? null,
-      }));
+      // Normalize: handle tuple format [name, country, team]
+      // and legacy object formats {r,n,t,i,c} / {rank,name,...}
+      players = players.slice(0, 5000).map((p, idx) => {
+        if (Array.isArray(p)) {
+          return {
+            rank: idx + 1,
+            name: p[0],
+            country: p[1] || null,
+            team_tag: p[2] || null,
+          };
+        }
+        return {
+          rank: p.r ?? p.rank ?? (idx + 1),
+          name: p.n ?? p.name,
+          team_tag: p.t ?? p.team_tag ?? null,
+          country: p.c ?? p.country ?? null,
+        };
+      });
 
       snapshots.push({ date, players });
     } catch (error) {
@@ -156,7 +166,7 @@ function resolveIdentities(snapshots) {
  *       n: "PlayerName",
  *       c: "de",
  *       r: [1, 2, null, ...],       // rank per date index, null = absent
- *       th: [["OG", 12345, 0], ...]  // [team_tag, team_id, startDateIndex]
+ *       th: [["OG", 0], ...]          // [team_tag, startDateIndex]
  *     }
  *   },
  *   aliases: { "name|newcountry": "name|oldcountry" },
@@ -178,7 +188,7 @@ function buildCompactHistory(snapshots, aliases) {
           n: player.name,
           c: player.country,
           r: new Array(snapshots.length).fill(null),
-          th: [], // team history: [team_tag, team_id, startDateIndex]
+          th: [], // team history: [team_tag, startDateIndex]
         };
       }
 
@@ -191,14 +201,10 @@ function buildCompactHistory(snapshots, aliases) {
 
       // Track team changes
       const currentTeam = player.team_tag || null;
-      const currentTeamId = player.team_id || null;
       const lastTeamEntry = p.th[p.th.length - 1];
 
       if (!lastTeamEntry || lastTeamEntry[0] !== currentTeam) {
-        p.th.push([currentTeam, currentTeamId, dateIdx]);
-      } else if (lastTeamEntry[1] !== currentTeamId) {
-        // Same tag but different ID (rare) — update ID
-        lastTeamEntry[1] = currentTeamId;
+        p.th.push([currentTeam, dateIdx]);
       }
     }
   }

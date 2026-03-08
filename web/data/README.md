@@ -19,7 +19,7 @@ The history file uses a compact columnar format:
       "n": "PlayerName",
       "c": "de",
       "r": [1, 2, null, 3, ...],
-      "th": [["OG", 12345, 0], ...]
+      "th": [["OG", 0], ...]
     }
   },
   "aliases": { ... },
@@ -28,7 +28,9 @@ The history file uses a compact columnar format:
 ```
 
 - `r` = rank at each date index (null = absent that day)
-- `th` = team history: `[team_tag, team_id, startDateIndex]`
+- `th` = team history: `[team_tag, startDateIndex]`
+
+Snapshot files use a positional tuple format: `[[name, country?, team?], ...]` where rank = array index + 1, and trailing nulls are trimmed.
 
 ## Generation
 

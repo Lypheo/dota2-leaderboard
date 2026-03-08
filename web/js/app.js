@@ -125,12 +125,10 @@ const App = {
 
         // Find team at this date index from team history
         let team_tag = null;
-        let team_id = null;
         if (p.th && p.th.length > 0) {
           for (let t = p.th.length - 1; t >= 0; t--) {
-            if (p.th[t][2] <= i) {
+            if (p.th[t][1] <= i) {
               team_tag = p.th[t][0];
-              team_id = p.th[t][1];
               break;
             }
           }
@@ -141,7 +139,6 @@ const App = {
           rank,
           name: p.n,
           team_tag,
-          team_id,
           country: p.c,
         });
       }

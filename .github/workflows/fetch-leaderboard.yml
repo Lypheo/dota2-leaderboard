@@ -24,7 +24,7 @@ jobs:
           DATE=$(date -u +'%Y-%m-%d')
           mkdir -p data/snapshots/europe
           curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=europe&leaderboard=0" \
-            | jq '[.leaderboard[:5000][] | {r:.rank, n:.name, t:.team_tag, i:.team_id, c:.country}]' \
+            | jq -c '[.leaderboard[:5000] | sort_by(.rank)[] | [.name, .country, .team_tag] | until(.[-1] != null or length == 1; .[:-1])]' \
             > "data/snapshots/europe/${DATE}.json"
 
       - name: Commit and push snapshot
