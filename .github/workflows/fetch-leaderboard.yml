@@ -23,9 +23,18 @@ jobs:
         run: |
           DATE=$(date -u +'%Y-%m-%d')
           mkdir -p data/snapshots/europe
-          curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=europe&leaderboard=0" \
-            | jq -c '[.leaderboard[:5000] | sort_by(.rank)[] | [.name, .country, .team_tag] | until(.[-1] != null or length == 1; .[:-1])]' \
-            > "data/snapshots/europe/${DATE}.json"
+          
+          # Fetch the data into a variable first
+          RESPONSE=$(curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=europe&leaderboard=0")
+          
+          # Check if the 'leaderboard' key exists and is not null
+          if echo "$RESPONSE" | jq -e '.leaderboard != null' > /dev/null; then
+            echo "$RESPONSE" | jq -c '[.leaderboard[:5000] | sort_by(.rank)[] | [.name, .country, .team_tag] | until(.[-1] != null or length == 1; .[:-1])]' > "data/snapshots/europe/${DATE}.json"
+          else
+            echo "Error: Leaderboard data is missing or null. API response:"
+            echo "$RESPONSE"
+            exit 1 # Fail the step explicitly instead of creating bad data
+          fi
 
       - name: Commit and push snapshot
         id: commit
