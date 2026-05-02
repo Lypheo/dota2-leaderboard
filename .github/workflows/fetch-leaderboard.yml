@@ -38,10 +38,10 @@ jobs:
               echo "Attempt $attempt failed: leaderboard missing or null."
             else
               echo "Attempt $attempt failed: curl error."
-              RESPONSE=""
             fi
             if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
-              sleep $((2 ** attempt))
+              BACKOFF_SECONDS=$((attempt * 2))
+              sleep "$BACKOFF_SECONDS"
             fi
           done
           
@@ -50,7 +50,11 @@ jobs:
             echo "$RESPONSE" | jq -c '[.leaderboard[:5000] | sort_by(.rank)[] | [.name, .country, .team_tag] | until(.[-1] != null or length == 1; .[:-1])]' > "data/snapshots/europe/${DATE}.json"
           else
             echo "Error: Leaderboard data is missing or null after ${MAX_ATTEMPTS} attempts. API response:"
-            echo "$RESPONSE"
+            if [ -n "$RESPONSE" ]; then
+              echo "$RESPONSE"
+            else
+              echo "No response body received."
+            fi
             exit 1 # Fail the step explicitly instead of creating bad data
           fi
 
