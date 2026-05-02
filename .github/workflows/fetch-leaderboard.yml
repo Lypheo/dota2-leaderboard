@@ -40,10 +40,11 @@ jobs:
               echo "Attempt $attempt failed: curl error."
             fi
             if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
-              BACKOFF_SECONDS=$((2 ** (attempt - 1)))
+              BACKOFF_SECONDS=$((2 ** attempt))
               if [ "$BACKOFF_SECONDS" -gt 16 ]; then
                 BACKOFF_SECONDS=16
               fi
+              echo "Retrying in ${BACKOFF_SECONDS}s..."
               sleep "$BACKOFF_SECONDS"
             fi
           done
