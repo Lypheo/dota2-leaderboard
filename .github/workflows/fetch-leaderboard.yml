@@ -30,7 +30,7 @@ jobs:
           
           for attempt in $(seq 1 $MAX_ATTEMPTS); do
             echo "Fetch attempt $attempt/$MAX_ATTEMPTS..."
-            if RESPONSE=$(curl -sS --fail "$URL"); then
+            if RESPONSE=$(curl -sS --fail --max-time 30 "$URL"); then
               if echo "$RESPONSE" | jq -e '.leaderboard != null' > /dev/null; then
                 SUCCESS=true
                 break
@@ -40,7 +40,10 @@ jobs:
               echo "Attempt $attempt failed: curl error."
             fi
             if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
-              BACKOFF_SECONDS=$((attempt * 2))
+              BACKOFF_SECONDS=$((2 ** attempt))
+              if [ "$BACKOFF_SECONDS" -gt 16 ]; then
+                BACKOFF_SECONDS=16
+              fi
               sleep "$BACKOFF_SECONDS"
             fi
           done
