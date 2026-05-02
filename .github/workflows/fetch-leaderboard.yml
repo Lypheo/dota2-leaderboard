@@ -26,11 +26,13 @@ jobs:
           URL="https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=europe&leaderboard=0"
           MAX_ATTEMPTS=5
           RESPONSE=""
+          SUCCESS=false
           
           for attempt in $(seq 1 $MAX_ATTEMPTS); do
             echo "Fetch attempt $attempt/$MAX_ATTEMPTS..."
             if RESPONSE=$(curl -sS --fail "$URL"); then
               if echo "$RESPONSE" | jq -e '.leaderboard != null' > /dev/null; then
+                SUCCESS=true
                 break
               fi
               echo "Attempt $attempt failed: leaderboard missing or null."
@@ -39,12 +41,12 @@ jobs:
               RESPONSE=""
             fi
             if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
-              sleep $((attempt * 2))
+              sleep $((2 ** attempt))
             fi
           done
           
           # Check if the 'leaderboard' key exists and is not null
-          if [ -n "$RESPONSE" ] && echo "$RESPONSE" | jq -e '.leaderboard != null' > /dev/null; then
+          if [ "$SUCCESS" = "true" ]; then
             echo "$RESPONSE" | jq -c '[.leaderboard[:5000] | sort_by(.rank)[] | [.name, .country, .team_tag] | until(.[-1] != null or length == 1; .[:-1])]' > "data/snapshots/europe/${DATE}.json"
           else
             echo "Error: Leaderboard data is missing or null after ${MAX_ATTEMPTS} attempts. API response:"
