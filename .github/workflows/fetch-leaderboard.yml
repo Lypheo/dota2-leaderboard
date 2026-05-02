@@ -23,15 +23,31 @@ jobs:
         run: |
           DATE=$(date -u +'%Y-%m-%d')
           mkdir -p data/snapshots/europe
+          URL="https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=europe&leaderboard=0"
+          MAX_ATTEMPTS=5
+          RESPONSE=""
           
-          # Fetch the data into a variable first
-          RESPONSE=$(curl -s "https://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=europe&leaderboard=0")
+          for attempt in $(seq 1 $MAX_ATTEMPTS); do
+            echo "Fetch attempt $attempt/$MAX_ATTEMPTS..."
+            if RESPONSE=$(curl -sS --fail "$URL"); then
+              if echo "$RESPONSE" | jq -e '.leaderboard != null' > /dev/null; then
+                break
+              fi
+              echo "Attempt $attempt failed: leaderboard missing or null."
+            else
+              echo "Attempt $attempt failed: curl error."
+              RESPONSE=""
+            fi
+            if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+              sleep $((attempt * 2))
+            fi
+          done
           
           # Check if the 'leaderboard' key exists and is not null
-          if echo "$RESPONSE" | jq -e '.leaderboard != null' > /dev/null; then
+          if [ -n "$RESPONSE" ] && echo "$RESPONSE" | jq -e '.leaderboard != null' > /dev/null; then
             echo "$RESPONSE" | jq -c '[.leaderboard[:5000] | sort_by(.rank)[] | [.name, .country, .team_tag] | until(.[-1] != null or length == 1; .[:-1])]' > "data/snapshots/europe/${DATE}.json"
           else
-            echo "Error: Leaderboard data is missing or null. API response:"
+            echo "Error: Leaderboard data is missing or null after ${MAX_ATTEMPTS} attempts. API response:"
             echo "$RESPONSE"
             exit 1 # Fail the step explicitly instead of creating bad data
           fi
