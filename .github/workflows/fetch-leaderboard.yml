@@ -35,12 +35,12 @@ jobs:
                 SUCCESS=true
                 break
               fi
-              echo "Attempt $attempt failed: leaderboard missing or null."
+              echo "Attempt $attempt failed: response validation failed (leaderboard missing or null)."
             else
               echo "Attempt $attempt failed: curl error."
             fi
             if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
-              BACKOFF_SECONDS=$((2 ** attempt))
+              BACKOFF_SECONDS=$((2 ** (attempt - 1)))
               if [ "$BACKOFF_SECONDS" -gt 16 ]; then
                 BACKOFF_SECONDS=16
               fi
@@ -52,7 +52,7 @@ jobs:
           if [ "$SUCCESS" = "true" ]; then
             echo "$RESPONSE" | jq -c '[.leaderboard[:5000] | sort_by(.rank)[] | [.name, .country, .team_tag] | until(.[-1] != null or length == 1; .[:-1])]' > "data/snapshots/europe/${DATE}.json"
           else
-            echo "Error: Leaderboard data is missing or null after ${MAX_ATTEMPTS} attempts. API response:"
+            echo "Error: Response validation failed after ${MAX_ATTEMPTS} attempts (leaderboard missing or null). API response:"
             if [ -n "$RESPONSE" ]; then
               echo "$RESPONSE"
             else
