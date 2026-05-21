@@ -289,6 +289,127 @@ body {
   font-size: 0.75rem;
 }
 
+/* Player Lookup */
+.player-lookup {
+  position: relative;
+}
+
+.player-lookup-input-wrap {
+  display: flex;
+  align-items: center;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0 6px;
+  gap: 6px;
+  transition: border-color 0.2s;
+  min-width: 200px;
+}
+
+.player-lookup-input-wrap:focus-within {
+  border-color: var(--accent);
+}
+
+.player-lookup-input {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  padding: 5px 0;
+  font-size: 0.85rem;
+  outline: none;
+  width: 100%;
+  min-width: 0;
+  font-family: inherit;
+}
+
+.player-lookup-input::placeholder {
+  color: var(--text-muted);
+}
+
+.player-lookup-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.player-lookup-clear:hover {
+  color: var(--text-primary);
+}
+
+.player-lookup-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  width: 320px;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.player-lookup-options {
+  overflow-y: auto;
+  max-height: 320px;
+}
+
+.player-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.player-option:hover {
+  background: var(--bg-tertiary);
+}
+
+.player-option.empty {
+  cursor: default;
+  color: var(--text-muted);
+}
+
+.player-option.empty:hover {
+  background: transparent;
+}
+
+.player-option-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-option-name .player-team {
+  color: var(--text-secondary);
+  margin-right: 4px;
+}
+
+.player-option-meta {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.player-option.inactive .player-option-meta {
+  color: var(--text-secondary);
+}
+
 /* Loading & Error States */
 .loading, .error {
   display: flex;
