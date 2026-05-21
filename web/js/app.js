@@ -8,6 +8,7 @@ const App = {
   playerHistory: null,
   playerLookupList: [],
   playerLookupResults: [],
+  playerLookupQuery: "",
 
   // Global filter state
   prosOnly: false,
@@ -964,13 +965,22 @@ const App = {
     const openDropdown = () => dropdown.classList.remove("hidden");
     const closeDropdown = () => dropdown.classList.add("hidden");
 
-    const updateResults = () => {
+    let debounceTimer = null;
+
+    const updateResults = (force = false) => {
       const query = input.value.trim().toLowerCase();
 
       if (!query) {
         this.playerLookupResults = [];
+        this.playerLookupQuery = "";
         closeDropdown();
         clearBtn.classList.add("hidden");
+        return;
+      }
+
+      if (!force && query === this.playerLookupQuery) {
+        openDropdown();
+        clearBtn.classList.remove("hidden");
         return;
       }
 
@@ -979,9 +989,17 @@ const App = {
         .slice(0, 20);
 
       this.playerLookupResults = results;
+      this.playerLookupQuery = query;
       this.renderPlayerLookupOptions(results);
       openDropdown();
       clearBtn.classList.remove("hidden");
+    };
+
+    const scheduleUpdate = () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+      debounceTimer = setTimeout(() => updateResults(), 150);
     };
 
     const selectPlayer = (playerId) => {
@@ -989,6 +1007,7 @@ const App = {
       input.value = "";
       clearBtn.classList.add("hidden");
       this.playerLookupResults = [];
+      this.playerLookupQuery = "";
       if (window.PlayerModal) {
         PlayerModal.show(playerId);
       }
@@ -996,11 +1015,11 @@ const App = {
 
     input.addEventListener("focus", () => {
       if (input.value.trim()) {
-        updateResults();
+        updateResults(false);
       }
     });
 
-    input.addEventListener("input", updateResults);
+    input.addEventListener("input", scheduleUpdate);
 
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && this.playerLookupResults.length > 0) {
@@ -1016,6 +1035,7 @@ const App = {
       e.stopPropagation();
       input.value = "";
       this.playerLookupResults = [];
+      this.playerLookupQuery = "";
       closeDropdown();
       clearBtn.classList.add("hidden");
       input.focus();
