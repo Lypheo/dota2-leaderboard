@@ -9,6 +9,8 @@ const App = {
   playerLookupList: [],
   playerLookupResults: [],
   playerLookupQuery: "",
+  playerLookupMaxResults: 20,
+  playerLookupDebounceMs: 150,
 
   // Global filter state
   prosOnly: false,
@@ -965,8 +967,8 @@ const App = {
     const openDropdown = () => dropdown.classList.remove("hidden");
     const closeDropdown = () => dropdown.classList.add("hidden");
 
-    const maxResults = 20;
-    const debounceMs = 150;
+    const maxResults = this.playerLookupMaxResults;
+    const debounceMs = this.playerLookupDebounceMs;
     let debounceTimer = null;
 
     const updateResults = (force = false) => {
