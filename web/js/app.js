@@ -6,6 +6,11 @@
 const App = {
   data: null,
   playerHistory: null,
+  playerLookupList: [],
+  playerLookupResults: [],
+  playerLookupQuery: "",
+  playerLookupMaxResults: 20,
+  playerLookupDebounceMs: 150,
 
   // Global filter state
   prosOnly: false,
@@ -46,6 +51,7 @@ const App = {
       this.renderInitialLeaderboard();
       this.renderFavorites();
       this.setupGlobalFilters();
+      this.setupPlayerLookup();
       this.setupExpandToggle();
       this.setupTeamChangesToggle();
       this.setupAboutModal();
@@ -101,6 +107,9 @@ const App = {
 
     // Build player history for stats
     this.playerHistory = Stats.buildPlayerHistory(this.data.snapshots);
+
+    // Build player lookup list for search
+    this.buildPlayerLookupList();
 
     // Migrate favorites that reference old name|country IDs
     this.migrateFavorites();
@@ -175,6 +184,41 @@ const App = {
         Favorites.add(aliases[favId]);
       }
     }
+  },
+
+  /**
+   * Build player lookup list from full history
+   */
+  buildPlayerLookupList() {
+    if (!this.data?.snapshots?.length || !this.playerHistory) {
+      this.playerLookupList = [];
+      return;
+    }
+
+    const latestSnapshot = this.data.snapshots[this.data.snapshots.length - 1];
+    const activeIds = new Set(
+      latestSnapshot.players.map((player) => Stats.getPlayerId(player)),
+    );
+
+    this.playerLookupList = Object.values(this.playerHistory)
+      .map((data) => {
+        const lastEntry = data.ranks[data.ranks.length - 1];
+        const name = data.name || "";
+        const teamTag = data.team_tag || "";
+        return {
+          id: data.id,
+          name,
+          team_tag: teamTag,
+          country: data.country,
+          lastRank: lastEntry?.rank ?? null,
+          lastTimestamp: lastEntry?.timestamp ?? null,
+          isCurrent: activeIds.has(data.id),
+          searchText: `${name} ${teamTag}`.toLowerCase(),
+        };
+      })
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+      );
   },
 
   /**
@@ -258,6 +302,59 @@ const App = {
     }
 
     optionsContainer.innerHTML = html;
+  },
+
+  /**
+   * Render player lookup options
+   */
+  renderPlayerLookupOptions(results) {
+    const optionsContainer = document.getElementById("player-lookup-options");
+    if (!optionsContainer) return;
+
+    if (!results.length) {
+      optionsContainer.innerHTML =
+        '<div class="player-option empty">No players found</div>';
+      return;
+    }
+
+    optionsContainer.innerHTML = results
+      .map((player) => {
+        const flagUrl = Stats.getFlagUrl(player.country);
+        const flagHtml = flagUrl
+          ? `<img class="player-flag" src="${flagUrl}" alt="${
+              player.country
+            }" title="${
+              player.country?.toUpperCase() || ""
+            }" onerror="this.style.display='none'">`
+          : "";
+        const teamHtml = player.team_tag
+          ? `<span class="player-team">${this.escapeHtml(
+              player.team_tag,
+            )}.</span>`
+          : "";
+        const rankLabel = player.lastRank ? `#${player.lastRank}` : "—";
+        const dateLabel =
+          !player.isCurrent && player.lastTimestamp
+            ? `(${this.formatLookupDate(player.lastTimestamp)})`
+            : "";
+        const metaLabel = player.isCurrent
+          ? `${rankLabel}`
+          : `Last seen ${rankLabel}${dateLabel}`;
+        const statusClass = player.isCurrent ? "" : " inactive";
+
+        return `
+          <div class="player-option${statusClass}" data-player-id="${this.escapeAttr(
+            player.id,
+          )}">
+            ${flagHtml}
+            <span class="player-option-name">${teamHtml}${this.escapeHtml(
+              player.name,
+            )}</span>
+            <span class="player-option-meta">${metaLabel}</span>
+          </div>
+        `;
+      })
+      .join("");
   },
 
   /**
@@ -857,6 +954,111 @@ const App = {
   },
 
   /**
+   * Setup player lookup search
+   */
+  setupPlayerLookup() {
+    const input = document.getElementById("player-lookup-input");
+    const dropdown = document.getElementById("player-lookup-dropdown");
+    const options = document.getElementById("player-lookup-options");
+    const clearBtn = document.getElementById("player-lookup-clear");
+
+    if (!input || !dropdown || !options) return;
+
+    const openDropdown = () => dropdown.classList.remove("hidden");
+    const closeDropdown = () => dropdown.classList.add("hidden");
+
+    const maxResults = this.playerLookupMaxResults;
+    const debounceMs = this.playerLookupDebounceMs;
+    let debounceTimer = null;
+
+    const updateResults = (force = false) => {
+      const query = input.value.trim().toLowerCase();
+
+      if (!query) {
+        this.playerLookupResults = [];
+        this.playerLookupQuery = "";
+        closeDropdown();
+        clearBtn.classList.add("hidden");
+        return;
+      }
+
+      if (!force && query === this.playerLookupQuery) {
+        openDropdown();
+        clearBtn.classList.remove("hidden");
+        return;
+      }
+
+      const results = this.playerLookupList
+        .filter((player) => player.searchText.includes(query))
+        .slice(0, maxResults);
+
+      this.playerLookupResults = results;
+      this.playerLookupQuery = query;
+      this.renderPlayerLookupOptions(results);
+      openDropdown();
+      clearBtn.classList.remove("hidden");
+    };
+
+    const scheduleUpdate = () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+      debounceTimer = setTimeout(() => updateResults(), debounceMs);
+    };
+
+    const selectPlayer = (playerId) => {
+      closeDropdown();
+      input.value = "";
+      clearBtn.classList.add("hidden");
+      this.playerLookupResults = [];
+      this.playerLookupQuery = "";
+      if (window.PlayerModal) {
+        PlayerModal.show(playerId);
+      }
+    };
+
+    input.addEventListener("focus", () => {
+      if (input.value.trim()) {
+        updateResults(false);
+      }
+    });
+
+    input.addEventListener("input", scheduleUpdate);
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && this.playerLookupResults.length > 0) {
+        e.preventDefault();
+        selectPlayer(this.playerLookupResults[0].id);
+      } else if (e.key === "Escape") {
+        closeDropdown();
+        input.blur();
+      }
+    });
+
+    clearBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      input.value = "";
+      this.playerLookupResults = [];
+      this.playerLookupQuery = "";
+      closeDropdown();
+      clearBtn.classList.add("hidden");
+      input.focus();
+    });
+
+    options.addEventListener("click", (e) => {
+      const option = e.target.closest(".player-option");
+      if (!option || option.classList.contains("empty")) return;
+      selectPlayer(option.dataset.playerId);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest("#player-lookup")) {
+        closeDropdown();
+      }
+    });
+  },
+
+  /**
    * Setup expand/compact toggle for leaderboard
    */
   setupExpandToggle() {
@@ -891,6 +1093,19 @@ const App = {
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
+  },
+
+  /**
+   * Format date for lookup list
+   */
+  formatLookupDate(timestamp) {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleDateString("en-GB", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   },
 
   /**
