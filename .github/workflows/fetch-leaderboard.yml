@@ -2,8 +2,8 @@ name: Fetch Dota 2 Leaderboard
 
 on:
   schedule:
-    # Run once per day at 12:15 UTC
-    - cron: "15 12 * * *"
+    - cron: '0 4 * * *'
+      timezone: 'Europe/Berlin'
   workflow_dispatch: # Allow manual triggering
 
 jobs:
