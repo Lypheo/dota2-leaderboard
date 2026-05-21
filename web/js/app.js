@@ -333,7 +333,7 @@ const App = {
         const rankLabel = player.lastRank ? `#${player.lastRank}` : "—";
         const dateLabel =
           !player.isCurrent && player.lastTimestamp
-            ? ` (${this.formatLookupDate(player.lastTimestamp)})`
+            ? `(${this.formatLookupDate(player.lastTimestamp)})`
             : "";
         const metaLabel = player.isCurrent
           ? `${rankLabel}`
@@ -965,6 +965,8 @@ const App = {
     const openDropdown = () => dropdown.classList.remove("hidden");
     const closeDropdown = () => dropdown.classList.add("hidden");
 
+    const maxResults = 20;
+    const debounceMs = 150;
     let debounceTimer = null;
 
     const updateResults = (force = false) => {
@@ -986,7 +988,7 @@ const App = {
 
       const results = this.playerLookupList
         .filter((player) => player.searchText.includes(query))
-        .slice(0, 20);
+        .slice(0, maxResults);
 
       this.playerLookupResults = results;
       this.playerLookupQuery = query;
@@ -999,7 +1001,7 @@ const App = {
       if (debounceTimer) {
         clearTimeout(debounceTimer);
       }
-      debounceTimer = setTimeout(() => updateResults(), 150);
+      debounceTimer = setTimeout(() => updateResults(), debounceMs);
     };
 
     const selectPlayer = (playerId) => {
