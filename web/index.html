@@ -240,6 +240,38 @@
           </div>
         </div>
         <div class="filter-group">
+          <label class="filter-label" for="player-lookup-input">Player</label>
+          <div class="player-lookup" id="player-lookup">
+            <div class="player-lookup-input-wrap">
+              <input
+                type="text"
+                class="player-lookup-input"
+                id="player-lookup-input"
+                placeholder="Search players"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button
+                type="button"
+                class="player-lookup-clear hidden"
+                id="player-lookup-clear"
+                aria-label="Clear player search"
+              >
+                &times;
+              </button>
+            </div>
+            <div
+              class="player-lookup-dropdown hidden"
+              id="player-lookup-dropdown"
+            >
+              <div
+                class="player-lookup-options"
+                id="player-lookup-options"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div class="filter-group">
           <button
             id="pros-only-toggle"
             class="filter-toggle"
