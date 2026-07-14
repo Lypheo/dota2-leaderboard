@@ -45,6 +45,7 @@ This repository is a fork of the original [maakep/dota2-leaderboard](https://git
 - **Extended Scope**: Tracks all 5,000 ranks on the leaderboard, instead of being limited to the top 500 players.
 - **Region Focus**: Exclusively tracks the Europe region, with all files and data for Americas, China, and Southeast Asia (SEA) removed.
 - **Search Players**: Search for any player name to view their rank history, even if they are not on the leaderboard anymore.
+- **National Ranks**: Added column to display national ranks.
 - **Reworked Storage Format**: Stores historical data in a compact columnar JSON format that aggregates daily snapshots, dramatically reducing download payload size, rather than extracting history from git commits.
 
 ---

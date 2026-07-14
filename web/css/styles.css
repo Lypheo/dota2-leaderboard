@@ -688,6 +688,30 @@ section.team-changes-section {
 .leaderboard-row .rank.top-3 { color: #c0c0c0; }
 .leaderboard-row .rank.top-10 { color: #cd7f32; }
 
+/* National Rank Column styling */
+.col-nat-rank,
+.leaderboard-row .nat-rank {
+  display: none;
+}
+
+.has-country-filter .col-nat-rank {
+  display: block;
+}
+
+.has-country-filter .leaderboard-row .nat-rank {
+  display: block;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.has-country-filter .leaderboard-header {
+  grid-template-columns: 60px 70px 60px 100px 1fr 30px 40px auto;
+}
+
+.has-country-filter .leaderboard-row {
+  grid-template-columns: 60px 70px 60px 100px 1fr 30px 40px;
+}
+
 .leaderboard-row .change {
   font-size: 0.85rem;
   font-weight: 600;
@@ -1418,6 +1442,14 @@ section.team-changes-section {
   .leaderboard-row {
     grid-template-columns: 50px 40px 70px 1fr 30px;
     padding: 10px 12px;
+  }
+
+  .has-country-filter .leaderboard-header {
+    grid-template-columns: 40px 50px 40px 70px 1fr auto;
+  }
+
+  .has-country-filter .leaderboard-row {
+    grid-template-columns: 40px 50px 40px 70px 1fr 30px;
   }
 
   .header-buttons {

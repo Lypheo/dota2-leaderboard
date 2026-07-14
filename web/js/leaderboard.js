@@ -59,6 +59,7 @@ const Leaderboard = {
     let players = snapshot.players;
     let prevPlayers = previousSnapshot ? previousSnapshot.players : [];
 
+    const leaderboardSection = document.getElementById("leaderboard");
     if (window.App) {
       if (App.selectedCountry) {
         const country = App.selectedCountry.toLowerCase();
@@ -68,6 +69,9 @@ const Leaderboard = {
         prevPlayers = prevPlayers.filter(
           (p) => p.country && p.country.toLowerCase() === country,
         );
+        if (leaderboardSection) leaderboardSection.classList.add("has-country-filter");
+      } else {
+        if (leaderboardSection) leaderboardSection.classList.remove("has-country-filter");
       }
       if (App.prosOnly) {
         players = players.filter((p) => p.team_tag && p.team_tag.trim() !== "");
@@ -75,6 +79,8 @@ const Leaderboard = {
           (p) => p.team_tag && p.team_tag.trim() !== "",
         );
       }
+    } else if (leaderboardSection) {
+      leaderboardSection.classList.remove("has-country-filter");
     }
 
     // Build a map of previous ranks for comparison
@@ -102,9 +108,11 @@ const Leaderboard = {
     // Build new DOM in a fragment first
     const fragment = document.createDocumentFragment();
 
-    for (const player of players) {
+    for (let i = 0; i < players.length; i++) {
+      const player = players[i];
       const playerId = Stats.getPlayerId(player);
-      const row = this.createRow(player, prevRanks[playerId]);
+      const countryRank = (window.App && App.selectedCountry) ? (i + 1) : null;
+      const row = this.createRow(player, prevRanks[playerId], countryRank);
       fragment.appendChild(row);
     }
 
@@ -135,9 +143,11 @@ const Leaderboard = {
     const fragment = document.createDocumentFragment();
     const rowsToAnimate = [];
 
-    for (const player of newPlayers) {
+    for (let i = 0; i < newPlayers.length; i++) {
+      const player = newPlayers[i];
       const playerId = Stats.getPlayerId(player);
-      const row = this.createRow(player, prevRanks[playerId]);
+      const countryRank = (window.App && App.selectedCountry) ? (i + 1) : null;
+      const row = this.createRow(player, prevRanks[playerId], countryRank);
       const newPosition = newPositions[playerId];
       const oldPosition = oldPositions[playerId];
 
@@ -192,7 +202,7 @@ const Leaderboard = {
   /**
    * Create a leaderboard row element
    */
-  createRow(player, prevRank) {
+  createRow(player, prevRank, countryRank = null) {
     const row = document.createElement("div");
     row.className = "leaderboard-row";
     const playerId = Stats.getPlayerId(player);
@@ -222,7 +232,10 @@ const Leaderboard = {
       ? '<span class="favorite-star small active display-only">★</span>'
       : "";
 
+    const natRankHtml = countryRank !== null ? `<span class="nat-rank">${countryRank}</span>` : `<span class="nat-rank"></span>`;
+
     row.innerHTML = `
+      ${natRankHtml}
       <span class="rank ${rankClass}">${player.rank}</span>
       <span class="change ${change.class}">${change.text}</span>
       <span class="team">${player.team_tag || ""}</span>
