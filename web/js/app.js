@@ -48,7 +48,6 @@ const App = {
       this.setupGlobalFilters();
       this.setupExpandToggle();
       this.setupTeamChangesToggle();
-      this.setupAboutModal();
 
       // Re-render favorites when they change
       Favorites.onChange(() => {
@@ -672,60 +671,6 @@ const App = {
     });
   },
 
-  /**
-   * Setup About modal
-   */
-  setupAboutModal() {
-    const modal = document.getElementById("about-modal");
-    const openBtn = document.getElementById("about-btn");
-    const closeBtn = document.getElementById("about-modal-close");
-
-    const showModal = () => {
-      modal.classList.remove("hidden");
-      document.body.style.overflow = "hidden";
-      // Push history state so back button closes modal
-      history.pushState({ aboutModal: true }, "");
-    };
-
-    const hideModal = (updateHistory = false) => {
-      if (modal.classList.contains("hidden")) return;
-
-      modal.classList.add("hidden");
-      document.body.style.overflow = "";
-
-      // Go back in history if closed by user action (not by popstate)
-      if (updateHistory && history.state && history.state.aboutModal) {
-        history.back();
-      }
-    };
-
-    openBtn.addEventListener("click", showModal);
-    closeBtn.addEventListener("click", () => hideModal(true));
-
-    // Click outside to close
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        hideModal(true);
-      }
-    });
-
-    // ESC key to close
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !modal.classList.contains("hidden")) {
-        hideModal(true);
-      }
-    });
-
-    // Handle browser back button
-    window.addEventListener("popstate", (e) => {
-      if (
-        !modal.classList.contains("hidden") &&
-        (!e.state || !e.state.aboutModal)
-      ) {
-        hideModal(false);
-      }
-    });
-  },
 
   /**
    * Setup global filter bar controls

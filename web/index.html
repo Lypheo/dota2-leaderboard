@@ -170,13 +170,7 @@
             height="32"
           />
           <h1>Dota 2 Leaderboard</h1>
-          <button
-            class="header-about-btn"
-            id="about-btn"
-            aria-label="About the developer"
-          >
-            About Me
-          </button>
+
         </div>
         <span class="header-region">Europe</span>
       </header>
@@ -403,51 +397,7 @@
         </section>
       </main>
 
-      <!-- About Modal -->
-      <div id="about-modal" class="modal hidden">
-        <div class="modal-content about-modal-content">
-          <button class="modal-close" id="about-modal-close">&times;</button>
-          <div class="about-modal-body">
-            <h2>About me</h2>
 
-            <div class="support-section">
-              <p>
-                You may know me from such classics as "Dota 2 Silent Stream
-                until patch drops", "Dota 2 winrate increaser (hoho-haha)",
-                Super Smash Bros chrome extensions, to name a few. Maybe you've
-                seen me in your pubs, or perhaps you're one of the 500k+ people
-                I've reached on StackOverflow helping people with their game
-                development questions. <br />
-                Regardless, I'm a passionate developer and lifelong gamer who
-                has loved Dota since I started playing it about 18 years ago.
-                <br /><br />
-
-                I love making things for this community & game, and this project
-                is one of those things. <br />
-
-                If you appreciate the work, be a life-changer and consider
-                supporting me via the link below. <br /><br />
-
-                Every bit helps me dedicate more time to projects like this one,
-                and to give back to you & the community!
-              </p>
-              <script
-                type="text/javascript"
-                src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js"
-                data-name="bmc-button"
-                data-slug="maakep"
-                data-color="#23a300"
-                data-emoji="🐸"
-                data-font="Cookie"
-                data-text="Make my day"
-                data-outline-color="#ffffff"
-                data-font-color="#ffffff"
-                data-coffee-color="#FFDD00"
-              ></script>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- Player Modal -->
       <div id="player-modal" class="modal hidden">
@@ -495,78 +445,16 @@
       </div>
     </div>
 
-    <!-- SEO Content Section - Visible for search engines, styled to blend with design -->
-    <aside class="seo-content" aria-label="About Dota 2 Leaderboard">
-      <div class="seo-content-inner">
-        <h2>Dota 2 Leaderboard - Track Top Ranked Players Worldwide</h2>
-        <p>
-          Welcome to the most comprehensive
-          <strong>Dota 2 Leaderboard Tracker</strong> - your ultimate
-          destination for tracking <strong>Dota 2 rankings</strong>,
-          <strong>top players</strong>, and
-          <strong>pro team movements</strong> across all competitive regions.
-        </p>
-
-        <h3>Real-Time Dota 2 Rankings</h3>
-        <p>
-          Our <strong>Dota 2 leaderboard</strong> provides up-to-date rankings
-          for the <strong>top Immortal players</strong> in every region. Track
-          <strong>MMR leaderboard</strong> changes daily and see who's climbing
-          or falling in the ranks. Whether you're following your favorite pro
-          player or tracking the <strong>highest MMR players</strong> in the
-          world, our tracker has you covered.
-        </p>
-
-        <h3>Europe Dota 2 Leaderboard</h3>
-        <p>
-          This tracker is focused on the <strong>Europe Dota 2 Leaderboard</strong>,
-          covering European and CIS region rankings with unlimited historical data.
-        </p>
-
-        <h3>Pro Player & Team Tracking</h3>
-        <p>
-          Follow <strong>Dota 2 pro players</strong> and their journey through
-          the ranks. See <strong>team changes</strong>, track when players join
-          or leave organizations, and monitor the competitive scene. Our
-          <strong>Dota 2 team tracker</strong> keeps you informed about roster
-          movements across all major teams.
-        </p>
-
-        <h3>Historical Rank Data</h3>
-        <p>
-          View <strong>Dota 2 rank history</strong> with our interactive
-          timeline feature. See how players' rankings have changed over time,
-          identify trends, and analyze performance patterns. Track the
-          <strong>biggest winners and losers</strong> in the Dota 2 competitive
-          ladder.
-        </p>
-      </div>
-    </aside>
-
     <!-- Footer -->
     <footer class="site-footer" role="contentinfo">
       <div class="footer-content">
         <div class="footer-section">
-          <h4>Dota 2 Leaderboard Tracker</h4>
+          <h4>How it works</h4>
           <p>
-            Track Dota 2 leaderboard rankings, player stats, and team changes
-            across all regions. Free, updated daily.
+            This site displays historical rankings for the Europe Dota 2 leaderboard, tracking the top 5000 players.
+            An automated daily script fetches rankings from the official Dota 2 API, and this page visualizes the historical timeline.
+            Updates occur once a day.
           </p>
-        </div>
-        <div class="footer-section">
-          <h4>Region</h4>
-          <ul>
-            <li>Europe Leaderboard</li>
-          </ul>
-        </div>
-        <div class="footer-section">
-          <h4>Features</h4>
-          <ul>
-            <li>Real-time Rankings</li>
-            <li>Player Rank History</li>
-            <li>Team Change Tracking</li>
-            <li>Favorite Players</li>
-          </ul>
         </div>
       </div>
       <div class="footer-bottom">
@@ -598,27 +486,7 @@
 
       gtag("config", "G-X8RP9NY768");
 
-      // Track About Me button click
-      document
-        .getElementById("about-btn")
-        ?.addEventListener("click", function () {
-          gtag("event", "about_me_open", {
-            event_category: "engagement",
-            event_label: "About Me Button",
-          });
-        });
 
-      // Track Buy Me a Coffee link click (the BMC script creates an anchor)
-      document.addEventListener("click", function (e) {
-        const bmcLink = e.target.closest('a[href*="buymeacoffee.com"]');
-        if (bmcLink) {
-          gtag("event", "support_click", {
-            event_category: "engagement",
-            event_label: "Buy Me a Coffee",
-            transport_type: "beacon",
-          });
-        }
-      });
     </script>
   </body>
 </html>
