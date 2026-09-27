@@ -30,7 +30,9 @@ const App = {
       // Load saved filter preferences BEFORE initModules so country filter populates correctly
       const savedRankScope = localStorage.getItem("rankScope") || "20";
       const savedTimeScope = localStorage.getItem("timeScope") || "7";
-      this.selectedCountry = localStorage.getItem("selectedCountry") || "";
+      const savedCountry = localStorage.getItem("selectedCountry") || "";
+      const urlCountry = new URLSearchParams(window.location.search).get("country");
+      this.selectedCountry = (urlCountry || savedCountry).trim().toLowerCase();
       this.prosOnly = localStorage.getItem("prosOnly") === "true";
 
       // Initialize modules (populateCountryFilter needs selectedCountry set)
@@ -51,6 +53,7 @@ const App = {
       this.renderInitialLeaderboard();
       this.renderFavorites();
       this.setupGlobalFilters();
+      this.syncCountryUrl();
       this.setupPlayerLookup();
       this.setupExpandToggle();
       this.setupTeamChangesToggle();
@@ -230,6 +233,19 @@ const App = {
     } catch {
       return code.toUpperCase();
     }
+  },
+
+  /**
+   * Keep the selected country available in shareable URLs.
+   */
+  syncCountryUrl() {
+    const url = new URL(window.location.href);
+    if (this.selectedCountry) {
+      url.searchParams.set("country", this.selectedCountry);
+    } else {
+      url.searchParams.delete("country");
+    }
+    history.replaceState(history.state, "", url);
   },
 
   /**
@@ -825,8 +841,9 @@ const App = {
     };
 
     const selectCountry = (code) => {
-      this.selectedCountry = code;
+      this.selectedCountry = code.toLowerCase();
       localStorage.setItem("selectedCountry", code);
+      this.syncCountryUrl();
       if (code) {
         pickerInput.value = this.getCountryName(code);
         pickerFlag.src = Stats.getFlagUrl(code);
